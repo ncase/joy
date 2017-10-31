@@ -191,38 +191,40 @@ Joy.Actor = function(options, parent, data){
 	if(self.onpreview) self.on("preview",self.onpreview);
 
 	// Preview on hover!
-	self.isCurrentlyEditing = false;
 	self.previewData = null;
 	self.preview = function(dom, callback){
 
-		var _t = 0;
+		var _param = 0;
 		var _ticker = null;
-		var _previewCallback = callback;
 
 		// Start & Stop previewing
-		var _preview = function(){
-			if(self.isCurrentlyEditing){
+		var _preview = function(event){
+			if(self.top.isCurrentlyEditing || !self.top.allowPreview){
 				_stopPreviewing();
 			}else{
 				self.previewData = _clone(self.data);
-				_previewCallback(self.data, self.previewData, Math.sin(_t));
+				var previewMeta = {
+					param: _param,
+					"event": event
+				};
+				callback(self.data, self.previewData, previewMeta);
 				self.trigger("change");
-				_t += 0.1;
+				_param++;
 			}
 		};
 		var _stopPreviewing = function(){
-			_t = 0;
+			_param = 0;
 			clearInterval(_ticker);
 			self.previewData = null;
 			self.trigger("change");
 		};
 
 		// Mouse Events
-		dom.addEventListener("mouseover",function(){
-			if(self.isCurrentlyEditing) return;
-			_preview();
+		dom.addEventListener("mouseover",function(event){
+			if(self.top.isCurrentlyEditing || !self.top.allowPreview) return;
+			_preview(event);
 			_ticker = setInterval(_preview, 1000/60);
-		});
+		}, false);
 		dom.addEventListener("mouseout", _stopPreviewing);
 
 	};
@@ -233,11 +235,13 @@ Joy.Actor = function(options, parent, data){
 
 	// Actors can ACT ON targets...
 	self.onact = self.onact || function(){};
-	self.act = function(target){
+	self.act = function(target, altData){
 
 		// Real or Preview data?
 		var data;
-		if(self.previewData){
+		if(altData){
+			data = _clone(altData);
+		}else if(self.previewData){
 			data = _clone(self.previewData);
 		}else{
 			data = _clone(self.data);
@@ -258,7 +262,7 @@ Joy.Actor = function(options, parent, data){
 			target: target,
 			data: data
 		};
-		self.onact(message);
+		return self.onact(message);
 
 	};
 

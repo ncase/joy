@@ -48,9 +48,9 @@ Joy.add({
 			}, data);
 
 			// HACK: Preview on hover!
-			self.preview(self.currentWidget, function(data, previewData, t){
-				previewData.value = data.value + t*5;
-			});
+			/*self.preview(self.currentWidget, function(data, previewData, t){
+				previewData.value = data.value + t*3;
+			});*/
 
 		};
 
@@ -252,7 +252,7 @@ Joy.add({
 			label: "&nbsp;",
 			onclick: function(){
 
-				self.isCurrentlyEditing = true;
+				self.top.isCurrentlyEditing = true;
 				modal.Color({
 					source: self.dom,
 					value: data.value,
@@ -263,10 +263,10 @@ Joy.add({
 						self.trigger("change", data.value); // you oughta know!
 					},
 					onclose: function(){
-						self.isCurrentlyEditing = false;
+						self.top.isCurrentlyEditing = false;
 					}
 				});
-				
+
 			},
 			styles:["joy-color"]
 		});

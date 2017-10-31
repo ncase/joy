@@ -6,11 +6,14 @@ Joy.add({
 	name: "Repeat the following...",
 	type: "logic/repeat",
 	tags: ["logic", "action"],
-	widget: "Repeat the following {data:'count', type:'number', min:1, placeholder:3} times: "+
-			"{data:'actions', type:'actions', resetVariables:false}",
-	act: function(topdata, data, target){
-		for(var i=0; i<data.count; i++){
-			Joy.act(topdata, data.actions, target);
+	init: "Repeat the following {prop:'count', type:'number', min:1, placeholder:3} times: "+
+			"{prop:'actions', type:'actions', resetVariables:false}",
+	onact: function(my){
+		//var param = my.data.PREVIEW_PARAM ? Math.min(my.data.PREVIEW_PARAM/100, 1) : 1;
+		//for(var i=0; i<my.data.count*param; i++){
+		for(var i=0; i<my.data.count; i++){
+			var message = my.actor.actions.act(my.target);
+			if(message=="STOP") return message;
 		}
 	}
 });

@@ -167,9 +167,16 @@ Joy.add({
 			entry.actionData = actionData;
 
 			// Preview on hover!
-			self.preview(bulletContainer, function(data, previewData){
+			self.preview(bulletContainer, function(data, previewData, previewMeta){
+				
+				// Previewed Action
 				var actionIndex = self.entries.indexOf(entry);
-				previewData.actions = previewData.actions.slice(0,actionIndex+1);
+				var previewAction = previewData.actions[actionIndex];
+				//previewAction.PREVIEW_PARAM = previewMeta.param;
+
+				// STOP after that action!
+				previewData.actions.splice(actionIndex+1, 0, {STOP:true});
+
 			});
 
 			return entry;
@@ -237,10 +244,17 @@ Joy.add({
 		if(my.data.resetVariables) my.target._vars = {};
 
 		// Do those actions, baby!!!
-		//for(var i=0; i<my.actor.entries.length; i++){
-		for(var i=0; i<my.data.actions.length; i++){ // HACK
+		for(var i=0; i<my.data.actions.length; i++){
+
+			// Stop?
+			var actionData = my.data.actions[i];
+			if(actionData.STOP) return "STOP";
+
+			// Run 
 			var actor = my.actor.entries[i].actor;
-			actor.act(my.target);
+			var actorMessage = actor.act(my.target, actionData); // use ol' actor, but GIVEN data.
+			if(actorMessage=="STOP") return actorMessage;
+
 		}
 
 	},
