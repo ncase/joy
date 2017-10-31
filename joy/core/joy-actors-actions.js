@@ -17,6 +17,7 @@ Joy.add({
 
 		// TODO: Separate out Actor code from Widget code
 		// so that this can run EVEN WITHOUT WIDGETS.
+		// Using messages, probably.
 
 	},
 	initWidget: function(self){
@@ -243,7 +244,7 @@ Joy.add({
 	},
 	onact: function(my){
 
-		// Create _vars, if not already there // TODO: scope?
+		// Create _vars, if not already there
 		if(!my.target._vars) my.target._vars={}; 
 
 		// Reset all of target's variables?

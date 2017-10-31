@@ -7,10 +7,8 @@ Joy.add({
 	type: "logic/repeat",
 	tags: ["logic", "action"],
 	init: "Repeat the following {id:'count', type:'scrubber', min:1, placeholder:3} times: "+
-			"{id:'actions', type:'actions', resetVariables:false}",
+		  "{id:'actions', type:'actions', resetVariables:false}",
 	onact: function(my){
-		//var param = my.data.PREVIEW_PARAM ? Math.min(my.data.PREVIEW_PARAM/100, 1) : 1;
-		//for(var i=0; i<my.data.count*param; i++){
 		for(var i=0; i<my.data.count; i++){
 			var message = my.actor.actions.act(my.target);
 			if(message=="STOP") return message;
@@ -18,48 +16,31 @@ Joy.add({
 	}
 });
 
-
-
-
-
-
-
-
-
-
-
-
 Joy.add({
 	name: "// Note",
 	type: "logic/comment",
 	tags: ["logic", "action"],
-	widget: function(self){
-
-		var data = self.data;
-		data.value = data.value || "";
+	initWidget: function(self){
 
 		// DOM
-		var dom = document.createElement("div");
-		self.dom = dom;
+		self.dom = document.createElement("div");
 
 		// Comment Box
 		self.box = new Joy.ui.TextBox({
 			multiline: true,
 			placeholder: "// your notes here",
-			value: data.value,
+			value: self.getData("value"),
 			onchange: function(value){
-				data.value = value;
-				self.update();
+				self.setData("value", value);
 			},
 			styles: ["box"]
 		});
-		dom.appendChild(self.box.dom);
+		self.dom.appendChild(self.box.dom);
 
-	},
-	act: function(topdata, data, target){
-		// doesn't actually do anything. it's a comment.
 	}
 });
+
+
 
 /****************
 
@@ -69,7 +50,7 @@ THEY'RE JUST SYNC'D STRINGS w/ A CHOOSER, MAYBE.
 WidgetConfig:
 {data:'varname', type:'variableName', variableType:'number', noChooser:true}
 
-****************/
+
 Joy.add({
 	type: "variableName",
 	tags: ["ui"],
@@ -232,3 +213,4 @@ Joy.add({
 		return reference.data.value;
 	}
 });
+****************/
