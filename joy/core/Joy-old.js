@@ -45,8 +45,8 @@ function Joy(config){
 	self.container.appendChild(self.dom);
 
 	// Initialize the UI
-	ui.init(self);
-	modal.init();
+	Joy.ui.init(self);
+	Joy.modal.init();
 
 	// Run "onchange" once at the start!
 	self.onchange(self.data); // TODO: framerate-limit the onchange?
@@ -266,7 +266,7 @@ Widget.configureWithString = function(self, constructor){
 				// cut out the start to end, save it as JSON,
 				// and replace with <span id=''></span>
 				var json = html.slice(startIndex, endIndex);
-				json = json.replace(/(\w+)\:/g,"'$1':"); // give props quotes
+				json = json.replace(/(\w+)\:/g,"'$1':"); // give names quotes
 				json = json.replace(/\'/g,'"'); // replace ' with "
 				json = JSON.parse(json);
 				var index = widgetConfigs.length;

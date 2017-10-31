@@ -2,7 +2,7 @@
 More prefixing to avoid NAME COLLISIONS
 */
 
-.joy-editor, .joy-actions, .joy-button, .joy-scrubber, .joy-modal-chooser{
+.joy-master, .joy-actions, .joy-button, .joy-scrubber, .joy-modal-chooser{
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
@@ -10,7 +10,7 @@ More prefixing to avoid NAME COLLISIONS
 	cursor:default;
 }
 
-.joy-editor{
+.joy-master{
 	display: block;
     margin: 1.5em;
 }
@@ -95,6 +95,7 @@ More prefixing to avoid NAME COLLISIONS
 	width: 1.5em;
     height: 1.5em;
     padding: 0;
+    border-color: rgba(0,0,0,0.1);
 }
 
 .joy-button.joy-more{

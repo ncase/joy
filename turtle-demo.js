@@ -2,7 +2,7 @@ Joy.add({
 	name: "Move turtle",
 	type: "turtle/forward",
 	tags: ["turtle", "action"],
-	init: "Move forward {type:'number', prop:'steps', min:0, placeholder:50} steps",
+	init: "Move forward {id:'steps', type:'scrubber', min:0, placeholder:50} steps",
 	onact: function(my){
 		my.target.forward(my.data.steps);
 	}
@@ -12,7 +12,7 @@ Joy.add({
 	name: "Turn turtle",
 	type: "turtle/turn",
 	tags: ["turtle", "action"],
-	init: "Turn {type:'number', prop:'angle', placeholder:10} degrees",
+	init: "Turn {id:'angle', type:'scrubber', placeholder:10} degrees",
 	onact: function(my){
 		my.target.turn(my.data.angle);
 	}
@@ -22,19 +22,20 @@ Joy.add({
 	name: "Change color",
 	type: "turtle/color",
 	tags: ["turtle", "action"],
-	init: "Change color to {type:'color', prop:'color'}",
+	init: "Change color to {id:'color', type:'color'}",
 	onact: function(my){
 		my.target.setColor(my.data.color);
 	}
 });
 
+/*
 Joy.add({
 	name: "Put brush up/down",
 	type: "turtle/pen",
 	tags: ["turtle", "action"],
 	init: JSON.stringify({
 		type:'choose', 
-		prop:'pen',
+		name:'pen',
 		options:[
 			{label:'Put brush up', value:0},
 			{label:'Put brush down', value:1}, 
@@ -49,7 +50,7 @@ Joy.add({
 			case -1: my.target.setPen(!my.target.pen); break;
 		}
 	}
-});
+});*/
 
 window.onload = function(){
 
@@ -57,24 +58,27 @@ window.onload = function(){
 	var data = Joy.loadFromURL() || {};
 
 	// Init
-	window.turtle = new Turtle({width:500, height:500}); //, data:data});
+	window.turtle = new Turtle({width:500, height:500, data:data});
 	document.querySelector("#player").appendChild(turtle.canvas);
 
 	// Joy
 	window.joy = Joy({
+		
+		init: "I'm a turtle! Do the following: {id:'turtleInstructions', type:'actions'} <hr> {type:'save'}",
+
 		data: data,
-		init: "I'm a turtle! Do the following: {prop:'turtleInstructions', type:'actions'} <hr> {type:'save'}",
 		allowPreview: true,
-		modules: ["basic", "turtle", "logic", "math", "advanced_math"],
 		container: "#editor",
-		onchange: function(my){
+
+		onupdate: function(my){
 			turtle.start();
-			my.actor.turtleInstructions.act(turtle);
+			my.turtleInstructions.act(turtle);
 			turtle.draw();
-		},
-		onpreview: function(my){
-			console.log('derp');
 		}
+
 	});
+	turtle.ondrag = function(){
+		joy.update();
+	};
 
 };

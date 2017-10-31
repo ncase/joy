@@ -7,12 +7,18 @@
 A nice list of actions.
 
 WidgetConfig:
-{type:'actions', prop:'actions', resetVariables:false}
+{type:'actions', name:'actions', resetVariables:false}
 
 ****************/
 Joy.add({
 	type: "actions",
 	tags: ["ui"],
+	init: function(self){
+
+		// TODO: Separate out Actor code from Widget code
+		// so that this can run EVEN WITHOUT WIDGETS.
+
+	},
 	initWidget: function(self){
 
 		var data = self.data;
@@ -49,13 +55,13 @@ Joy.add({
 				if(newActionWhere>0) newEntryIndex+=1;
 
 				// Chooser Modal!
-				modal.Chooser({
+				Joy.modal.Chooser({
 					position: "left",
 					source: entry.bullet.dom,
 					options: actionOptions,
 					onchange: function(value){
 						_addAction(value, newEntryIndex);
-						self.trigger("change"); // You oughta know!
+						self.update(); // You oughta know!
 						_updateBullets(); // update the UI, re-number it.
 					}
 				});
@@ -68,14 +74,14 @@ Joy.add({
 				_removeFromArray(actions, entry.actionData); // Delete action from Data's Actions[]
 				self.removeChild(entry.actor); // Delete actor from Children[]
 				list.removeChild(entry.dom); // Delete entry from DOM
-				self.trigger("change"); // You oughta know!
+				self.update(); // You oughta know!
 				_updateBullets(); // update the UI, re-number it.
 			}
 
 		};
 		var _createBullet = function(entry){
 		
-			var bullet = new ui.ChooserButton({
+			var bullet = new Joy.ui.ChooserButton({
 				position: "left",
 				staticLabel: _getBulletLabel(entry),
 				options: bulletOptions,
@@ -223,12 +229,12 @@ Joy.add({
 		}
 
 		// "+" Button: When clicked, prompt what actions to add!
-		var addButton = new ui.ChooserButton({
+		var addButton = new Joy.ui.ChooserButton({
 			staticLabel: "+",
 			options: actionOptions,
 			onchange: function(value){
 				_addAction(value);
-				self.trigger("change"); // You oughta know!
+				self.update(); // You oughta know!
 			},
 			styles: ["joy-bullet"]
 		});

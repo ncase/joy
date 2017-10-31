@@ -4,9 +4,13 @@ MODAL:
 Places a big ol' modal dialogue bubble over the editor!
 
 ********************/
-var modal = {};
+(function(){
 
-modal.init = function(){
+// SINGLETON
+var modal = {};
+Joy.modal = modal;
+
+modal.init = function(master){
 
 	// The main modal container
 	modal.dom = document.createElement("div");
@@ -64,10 +68,18 @@ modal.show = function(ui){
 	modal.box.style.left = x+"px";
 	modal.box.style.top = y+"px";
 
+	// On Open
+	if(modal.currentUI.onopen) modal.currentUI.onopen();
+
 };
 modal.hide = function(){
+
 	_emptyDOM(modal.box);
 	modal.dom.style.display = "none"; // bye
+
+	// On Close
+	if(modal.currentUI.onclose) modal.currentUI.onclose();
+
 };
 
 /********************
@@ -475,9 +487,6 @@ modal.Color = function(config){
 		window.removeEventListener("mousemove", _onmousemove);
 		window.removeEventListener("mouseup", _onmouseup);
 
-		// Hey, i've been closed
-		if(config.onclose) config.onclose();
-
 		// Hide Modal
 		modal.hide();
 
@@ -488,3 +497,4 @@ modal.Color = function(config){
 
 }
 
+})();

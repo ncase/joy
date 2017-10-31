@@ -7,40 +7,54 @@ The JOY Architecture:
     /    |     \
  Player Editor  Data
 
-ACTORS basically manage everything. They handle communication between:
-* the Player (the model/sim/game/thing being "programmed")
-* the Editor (the end-user programming interface)
-* the Data
-The Player, Editor & Data DO NOT TALK DIRECTLY TO EACH OTHER
+The Player, Editor & Data DO NOT TALK DIRECTLY TO EACH OTHER.
+I REPEAT: THEY SHOULD NEVER, EVER TALK DIRECTLY TO EACH OTHER.
 (This lets them all be modular and separate!)
+
+At the top layer is the JOY MASTER. You just pass in a template, like so:
+{
+	init: "Do this: {name:'instructions', type:'actions'}",
+	data: data,
+	allowPreview: true,
+	container: "#editor",
+	onupdate: function(my){
+		my.instructors.act(target);
+	}
+}
 
 *****************/
 
-function Joy(template){
+// THE JOY MASTER
+function Joy(options){
 
 	// You can call this as "new Joy()" or just "Joy()" 
 	var self = (this==window) ? {} : this;
 
 	// I'm a Joy.Actor!
-	Joy.Actor.call(self, {
-		_template: template
-	});
+	Joy.Actor.call(self, options);
+
+	// MASTER Options
+	if(self.allowPreview==undefined) self.allowPreview = false;
+	self.isCurrentlyEditing = false;
+	self.canPreview = function(){
+		return self.allowPreview && !self.isCurrentlyEditing;
+	};
 
 	// And: automatically create MY widget!
 	self.createWidget();
-	if(self.container){ // ...and auto-add my DOM to a container, if provided in template
+	if(self.container){ // ...and auto-add my DOM to a container, if provided in options
 		if(typeof self.container==="string") self.container=document.body.querySelector(self.container);
 		self.container.appendChild(self.dom);
 	}
 
-	// TODO: namespace both of these
-	ui.init(self);
-	modal.init();
+	// Initialize UI & Modal
+	Joy.ui.init(self);
+	Joy.modal.init(self);
 
-	// Trigger "change" once at the start!
-	self.trigger("change");
+	// Update!
+	self.update();
 
-	// gimme
+	// Return to sender
 	return self;
 
 }
@@ -52,8 +66,9 @@ ACTORS help the Player, Editor & Data talk to each other.
 To create an Actor, you need to pass it a "options" object like so:
 (ALL the parameters are optional, btw)
 {
-	type: "number", // what Actor Template to inherit from.
-	prop: "steps", // what property of my parent's data should be MY data
+	id: "steps", // by default, this is actorID AND dataID
+	dataID: "steps", // ONLY if actorID=/=dataID. (e.g. two actors modify same data)
+	type: "number", // what Actor Template to inherit from, if any
 	placeholder: 50 // if no data, what should be the placeholder?
 }
 
@@ -69,15 +84,12 @@ Joy.Actor = function(options, parent, data){
 	self.parent = parent;
 	self.top = self.parent ? self.parent.top : self; // if no parent, I'M top dog.
 
-	// Inherit from Actor Template, if any (or just pass an ENTIRE template.)
-	// And THEN inherit from "options"
+	// Inherit from Actor Template, if any. THEN inherit from "options"
 	self.type = options.type;
 	if(self.type){
-		self.template = Joy.getTemplateByType(self.type);
-	}else if(options._template){
-		self.template = options._template;
+		var actorTemplate = Joy.getTemplateByType(self.type);
+		_configure(self, actorTemplate);
 	}
-	_configure(self, self.template);
 	_configure(self, self.options);
 
 	// Adding child actors
@@ -98,6 +110,12 @@ Joy.Actor = function(options, parent, data){
 	self.removeChild = function(child){
 		_removeFromArray(self.children, child);
 		child.kill();
+	};
+
+	// Update
+	self.update = function(){
+		if(self.onupdate) self.onupdate(self);
+		if(self.parent) self.parent.update();
 	};
 
 	// Kill
@@ -122,8 +140,8 @@ Joy.Actor = function(options, parent, data){
 			value: _clone(self.placeholder)
 		};
 	}
+	// If data type not already specified, do that!
 	if(!self.placeholder.type){
-		// If data type not already specified, do that!
 		self.placeholder.type = self.type;
 	}
 
@@ -131,22 +149,31 @@ Joy.Actor = function(options, parent, data){
 	self.data = self.data || data;
 	if(!self.data){
 		var parent = self.parent;
-		var prop = self.prop;
-		if(parent && prop){
-			// My data's a property of parent's data!
-			if(!parent.data[prop]){ 
-				parent.data[prop] = _clone(self.placeholder); // if nothing, placeholder
-			}
-			self.data = parent.data[prop];
+		var dataID = self.dataID;
+		if(parent && dataID){
+			// if nothing, put placeholder in parent
+			if(!parent.data[dataID]) parent.data[dataID] = _clone(self.placeholder); 
+			self.data = parent.data[dataID]; // i'm parent's sub-data!
 		}else{
 			// ...otherwise, I'm standalone data.
 			self.data = _clone(self.placeholder);
 		}
 	}
 
+	// Get & Set!
+	self.getData = function(dataID){
+		return self.data[dataID];
+	};
+	self.setData = function(dataID, newValue){
+		self.data[dataID] = newValue;
+		self.update();
+	};
+
 	/////////////////////////////////
 	// ACTOR <-> EDITOR: "WIDGETS" //
 	/////////////////////////////////
+
+	self.dom = null; // to be created in "createWidget"!
 
 	// Init & Create Widget (if none, just put a "todo")
 	self.initWidget = self.initWidget || function(){
@@ -158,74 +185,31 @@ Joy.Actor = function(options, parent, data){
 		return self.dom;
 	};
 
-	// Send events up the chain! e.g. "change", "preview"
-	self._eventListeners = [];
-	self.on = function(eventName, callback){
-		self._eventListeners.push({
-			eventName: eventName,
-			callback: callback
-		});
-	};
-	self.trigger = function(eventName, data){
-
-		// Trigger all callbacks!
-		var callbacks = self._eventListeners.filter(function(listener){
-			return listener.eventName==eventName;
-		}).map(function(listener){
-			return listener.callback;
-		});
-		var message = {
-			actor: self,
-			data: data
-		};
-		callbacks.forEach(function(callback){
-			callback(message);
-		});
-
-		// Bubble up!
-		if(self.parent) self.parent.trigger(eventName, message);
-		
-	};
-	// Some common callbacks
-	if(self.onchange) self.on("change",self.onchange);
-	if(self.onpreview) self.on("preview",self.onpreview);
-
 	// Preview on hover!
 	self.previewData = null;
 	self.preview = function(dom, callback){
 
-		var _param = 0;
-		var _ticker = null;
-
 		// Start & Stop previewing
 		var _preview = function(event){
-			if(self.top.isCurrentlyEditing || !self.top.allowPreview){
+			if(!self.top.canPreview()){
 				_stopPreviewing();
 			}else{
 				self.previewData = _clone(self.data);
-				var previewMeta = {
-					param: _param,
-					"event": event
-				};
-				callback(self.data, self.previewData, previewMeta);
-				self.trigger("change");
-				_param++;
+				callback(self.data, self.previewData);
+				self.update();
 			}
 		};
 		var _stopPreviewing = function(){
-			_param = 0;
-			clearInterval(_ticker);
 			self.previewData = null;
-			self.trigger("change");
+			self.update();
 		};
 
 		// Mouse Events
-		dom.addEventListener("mouseover",function(event){
-			if(self.top.isCurrentlyEditing || !self.top.allowPreview) return;
-			_preview(event);
-			_ticker = setInterval(_preview, 1000/60);
+		dom.addEventListener("mouseenter",function(event){
+			if(!self.top.canPreview()) return;
+			_preview();
 		}, false);
-		dom.addEventListener("mouseout", _stopPreviewing);
+		dom.addEventListener("mouseleave", _stopPreviewing);
 
 	};
 
@@ -249,20 +233,19 @@ Joy.Actor = function(options, parent, data){
 
 		// Try to pre-evaluate all data beforehand!
 		self.children.forEach(function(childActor){
-			var prop = childActor.prop;
-			if(prop){
+			var dataID = childActor.dataID;
+			if(dataID){
 				var value = childActor.get(target);
-				data[prop] = value;
+				data[dataID] = value;
 			}
 		});
 
-		// Send a message to self.onact
-		var message = {
+		// On Act!
+		return self.onact({
 			actor: self,
 			target: target,
 			data: data
-		};
-		return self.onact(message);
+		});
 
 	};
 
@@ -271,20 +254,15 @@ Joy.Actor = function(options, parent, data){
 	self.get = function(target){
 
 		// Real or Preview data?
-		var data;
-		if(self.previewData){
-			data = _clone(self.previewData);
-		}else{
-			data = _clone(self.data);
-		}
+		var data = self.previewData ? self.previewData : self.data;
+		data = _clone(data);
 
-		// Message
-		var message = {
+		// On Get!
+		return self.onget({
 			actor: self,
 			target: target,
 			data: data
-		};
-		return self.onget(message);
+		});
 
 	};
 
@@ -292,12 +270,31 @@ Joy.Actor = function(options, parent, data){
 	// INITIALIZE ///////////////////
 	/////////////////////////////////
 
-	// Initialization string?
-	if(self.init) Joy.initializeWithString(self, self.init);
+	// Initialization: string or function?
+	if(self.init){
+		if(typeof self.init==="string") Joy.initializeWithString(self, self.init);
+		if(typeof self.init==="function") self.init(self);
+	}
 
 };
 
-// Templates that future Actors can be made from!
+/*****************
+
+ACTOR TEMPLATES that future Actors can be made from! Looks like this:
+
+Joy.add({
+	name: "Turn turtle", // what the Actions Widget calls it
+	type: "turtle/turn", // what it's called in Actor & Data
+	tags: ["turtle", "action"], // meta tags
+	init: "Turn {id:'angle', type:'number', placeholder:10} degrees", // for init'ing actor & widget
+	onact: function(my){
+		my.target.turn(my.data.angle);
+	}
+});
+
+*****************/
+
+// Templates 
 Joy.templates = [];
 Joy.add = function(template){
 	Joy.templates.push(template);
@@ -340,10 +337,10 @@ Joy.initializeWithString = function(self, markup){
 
 			// Cut out start to end, save as JSON & replace markup with <span>
 			var json = html.slice(startIndex, endIndex);
-			json = json.replace(/(\w+)\:/g,"'$1':"); // cleanup: give properties quotes
+			json = json.replace(/(\w+)\:/g,"'$1':"); // cleanup: give nameerties quotes
 			json = json.replace(/\'/g,'"'); // cleanup: replace ' with "
 			json = JSON.parse(json);
-			json.id = json.id || json.prop; // cleanup: if no explicit id, id is prop
+			json.dataID = json.dataID || json.id; // cleanup: dataID=id by default
 			actorOptions.push(json); // remember option!
 			html = html.substr(0, startIndex)
 				   + "<span id='widget_"+json.id+"'></span>"
@@ -360,7 +357,7 @@ Joy.initializeWithString = function(self, markup){
 
 	// Create all child Actors
 	actorOptions.forEach(function(actorOption){
-		var child = self.addChild(actorOption);
+		self.addChild(actorOption);
 	});
 
 	// Create Widget: html, and replace
@@ -382,18 +379,21 @@ Joy.initializeWithString = function(self, markup){
 
 		});
 
-		// gimme
+		// Return to sender
 		return self.dom;
 
 	};
 
 };
 
-/***
+/******************************
 
 SAVE & LOAD
 
-***/
+No need for a server!
+Just compresses JSON with LZ-String and puts it in the URL
+
+******************************/
 
 Joy.saveToURL = function(data){
 	var json = JSON.stringify(data); // Stringify

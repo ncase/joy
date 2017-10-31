@@ -4,6 +4,188 @@
 
 /****************
 
+Raw number widget: JUST the scrubber, no chooser
+
+Widget Options:
+{id:'steps', type:'number', placeholder:10, min:0, max:180, step:1}
+
+****************/
+Joy.add({
+	type: "scrubber",
+	tags: ["ui"],
+	initWidget: function(self){
+
+		// Scrubber IS the DOM
+		var o = self.options;
+		var scrubber = new Joy.ui.Scrubber({
+			min: o.min,
+			max: o.max,
+			step: o.step,
+			value: self.getData("value"),
+			onstart: function(){
+				self.top.isCurrentlyEditing = true;
+			},
+			onstop: function(){
+				self.top.isCurrentlyEditing = false;
+			},
+			onchange: function(value){
+				self.setData("value", value);
+			}
+		});
+		self.dom = scrubber.dom;
+
+	},
+	onget: function(my){
+		return my.data.value;
+	},
+	placeholder: {
+		value:0
+	}
+});
+
+
+/****************
+
+A color widget! (for now, same as choose except paints DOM, too)
+
+Widget Options:
+{id:'direction', type:'choose', options:['left','right'], placeholder:'left'}
+
+****************/
+
+Joy.add({
+	type: "color",
+	tags: ["ui"],
+	initWidget: function(self){
+
+		// Color Button IS the DOM
+		var colorButton = new Joy.ui.Button({
+			label: "&nbsp;",
+			onclick: function(){
+				Joy.modal.Color({ // TODO: precision for those floats, y'know
+					source: self.dom,
+					value: self.getData("value"),
+					onchange: function(value){
+						self.setData("value", value);
+						_changeLabelColor();
+					},
+					onopen: function(){
+						self.top.isCurrentlyEditing = true;
+					},
+					onclose: function(){
+						self.top.isCurrentlyEditing = false;
+					}
+				});
+
+			},
+			styles:["joy-color"]
+		});
+		self.dom = colorButton.dom;
+
+		// Change button color!
+		var _changeLabelColor = function(){
+			var hsl = self.getData("value");
+			colorButton.dom.style.background = _HSVToRGBString(hsl);
+		};
+		_changeLabelColor();
+
+		// Preview on hover!
+		self.preview(self.dom, function(data, previewData, t){
+			// TODO: better wiggling of color
+			//var v = data.value[2]; // "value", lightness.
+			//v = v + t*0.5;
+			//if(v>1) v=1;
+			//if(v<0) v=0;
+			previewData.value[2] = 0;
+		});
+
+	},
+	onget: function(my){
+		return _HSVToRGBString(my.data.value);
+	},
+	placeholder: function(){
+		var hue = Math.floor(Math.random()*360); // Random color!
+		return [hue, 0.8, 1.0];
+	}
+});
+
+
+/****************
+
+A widget to save data as hash!
+
+Widget Options:
+{type:'save'} // NO "id"! It just saves the top-most data.
+
+****************/
+
+Joy.add({
+	type: "save",
+	tags: ["ui"],
+	initWidget: function(self){
+
+		// DOM
+		var dom = document.createElement("div");
+		self.dom = dom;
+		
+		// Save Button
+		self.saveButton = new Joy.ui.Button({
+			label: "save:",
+			onclick: function(){
+				var url = Joy.saveToURL(self.top.data);
+				self.url.setValue(url);
+				self.url.select();
+			}
+		});
+		dom.appendChild(self.saveButton.dom);
+
+		// Spacer
+		dom.appendChild(_nbsp());
+		dom.appendChild(_nbsp());
+
+		// URL TextBox
+		self.url = new Joy.ui.TextBox({
+			readonly: true,
+			width: "calc(100% - 100px)"
+		});
+		dom.appendChild(self.url.dom);
+
+	}
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/****************
+
 NUMBER WIDGET. Can switch out between scrubbable & variable!
 (same config as scrubbable)
 
@@ -41,7 +223,7 @@ Joy.add({
 		var _showScrubber = function(rawNumber){
 			data.value = rawNumber;
 			_replace({
-				prop:'value', type:'scrubber',
+				name:'value', type:'scrubber',
 				min: o.min,
 				max: o.max,
 				step: o.step
@@ -61,7 +243,7 @@ Joy.add({
 				refID: refID
 			};
 			_replace({
-				prop:'value', type:'variableName',
+				name:'value', type:'variableName',
 				variableType:'number',
 				noChooser:true
 			}, data.value);
@@ -79,7 +261,7 @@ Joy.add({
 
 		// Moar Button
 		var defaultNumber = o.placeholder;
-		var moreButton = new ui.Button({
+		var moreButton = new Joy.ui.Button({
 			onclick: function(){
 
 				// Options
@@ -111,7 +293,7 @@ Joy.add({
 				});
 
 				// Show all possible variables to link this to!
-				modal.Chooser({
+				Joy.modal.Chooser({
 					source: self.dom,
 					options: options,
 					onchange: function(choice){
@@ -123,7 +305,7 @@ Joy.add({
 								_showVariable(choice.choiceValue);
 								break;
 						}
-						self.trigger("change"); // you oughta know!
+						self.update(); // you oughta know!
 					}
 				});
 
@@ -152,42 +334,10 @@ Joy.add({
 
 /****************
 
-Raw number widget: JUST the scrubber, no chooser
-
-Widget Options:
-{prop:'steps', type:'number', placeholder:10, min:0, max:180, step:1}
-
-****************/
-Joy.add({
-	type: "scrubber",
-	tags: ["ui"],
-	initWidget: function(self){
-
-		var data = self.data;
-
-		/* Scrubber *IS* DOM */
-		var o = self.options;
-		var scrubber = new ui.Scrubber({
-			min: o.min,
-			max: o.max,
-			step: o.step,
-			value: data.value,
-			onchange: function(value){
-				data.value = value;
-				self.trigger("change"); // you oughta know!
-			}
-		});
-		self.dom = scrubber.dom;
-
-	}
-});
-
-/****************
-
 A choose-y thing
 
 Widget Options:
-{prop:'direction', type:'choose', options:['left','right'], placeholder:'left'}
+{name:'direction', type:'choose', options:['left','right'], placeholder:'left'}
 
 ****************/
 Joy.add({
@@ -213,12 +363,12 @@ Joy.add({
 		}
 
 		// ChooserButton *IS* DOM
-		var chooserButton = new ui.ChooserButton({
+		var chooserButton = new Joy.ui.ChooserButton({
 			value: data.value,
 			options: options,
 			onchange: function(value){
 				data.value = value;
-				self.trigger("change"); // you oughta know!
+				self.update(); // you oughta know!
 			}
 		});
 		self.dom = chooserButton.dom;
@@ -232,124 +382,10 @@ Joy.add({
 
 /****************
 
-A color widget! (for now, same as choose except paints DOM, too)
-
-Widget Options:
-{prop:'direction', type:'choose', options:['left','right'], placeholder:'left'}
-
-****************/
-
-Joy.add({
-	type: "color",
-	tags: ["ui"],
-	initWidget: function(self){
-
-		var data = self.data;
-		self.dom = document.createElement("span");
-
-		// COLOR BUTTON
-		var colorButton = new ui.Button({
-			label: "&nbsp;",
-			onclick: function(){
-
-				self.top.isCurrentlyEditing = true;
-				modal.Color({
-					source: self.dom,
-					value: data.value,
-					onchange: function(value){
-						// TODO: precision for those floats, y'know
-						data.value = value;
-						_changeLabelColor();
-						self.trigger("change", data.value); // you oughta know!
-					},
-					onclose: function(){
-						self.top.isCurrentlyEditing = false;
-					}
-				});
-
-			},
-			styles:["joy-color"]
-		});
-		self.dom.appendChild(colorButton.dom);
-
-		// Change button color!
-		var _changeLabelColor = function(){
-			colorButton.dom.style.background = _HSVToRGBString(data.value);
-			colorButton.dom.style.borderColor = "rgba(0,0,0,0.1)";
-		};
-		_changeLabelColor();
-
-		// Preview on hover!
-		self.preview(self.dom, function(data, previewData, t){
-			// TODO: better wiggling of color
-			var v = data.value[2]; // "value", lightness.
-			v = v + t*0.5;
-			if(v>1) v=1;
-			if(v<0) v=0;
-			previewData.value[2] = v;
-		});
-
-	},
-	onget: function(my){
-		return _HSVToRGBString(my.data.value);
-	},
-	placeholder: function(){
-		var hue = Math.floor(Math.random()*360);
-		return [hue, 0.8, 1.0];
-	}
-});
-
-
-/****************
-
-A widget to save data as hash!
-
-Widget Options:
-{type:'save'} // NO "data"! It just saves the top-most data.
-
-****************/
-
-Joy.add({
-	type: "save",
-	tags: ["ui"],
-	initWidget: function(self){
-
-		// DOM
-		var dom = document.createElement("div");
-		self.dom = dom;
-		
-		// Save Button
-		self.saveButton = new ui.Button({
-			label: "save:",
-			onclick: function(){
-				var url = Joy.saveToURL(self.top.data);
-				self.url.setValue(url);
-				self.url.select();
-			}
-		});
-		dom.appendChild(self.saveButton.dom);
-
-		// Spacer
-		dom.appendChild(_nbsp());
-		dom.appendChild(_nbsp());
-
-		// URL TextBox
-		self.url = new ui.TextBox({
-			readonly: true,
-			width: "calc(100% - 100px)"
-		});
-		dom.appendChild(self.url.dom);
-
-	}
-});
-
-
-/****************
-
 A widget to type in strings!
 
 Widget Options:
-{prop:'name', type:'string', prefix:'&ldquo;', suffix:'&rdquo;', color:"whatever"}
+{name:'name', type:'string', prefix:'&ldquo;', suffix:'&rdquo;', color:"whatever"}
 
 ****************/
 Joy.add({
@@ -361,7 +397,7 @@ Joy.add({
 
 		// String *IS* DOM
 		var o = self.options;
-		var string = new ui.String({
+		var string = new Joy.ui.String({
 			prefix: o.prefix,
 			suffix: o.suffix,
 			color: o.color,
@@ -370,7 +406,7 @@ Joy.add({
 				self.lock(function(){
 					data.value = value;
 				});
-				self.trigger("change"); // you oughta know!
+				self.update(); // you oughta know!
 			}
 		});
 		self.dom = string.dom;

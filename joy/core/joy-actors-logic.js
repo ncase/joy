@@ -6,8 +6,8 @@ Joy.add({
 	name: "Repeat the following...",
 	type: "logic/repeat",
 	tags: ["logic", "action"],
-	init: "Repeat the following {prop:'count', type:'number', min:1, placeholder:3} times: "+
-			"{prop:'actions', type:'actions', resetVariables:false}",
+	init: "Repeat the following {id:'count', type:'scrubber', min:1, placeholder:3} times: "+
+			"{id:'actions', type:'actions', resetVariables:false}",
 	onact: function(my){
 		//var param = my.data.PREVIEW_PARAM ? Math.min(my.data.PREVIEW_PARAM/100, 1) : 1;
 		//for(var i=0; i<my.data.count*param; i++){
@@ -17,6 +17,17 @@ Joy.add({
 		}
 	}
 });
+
+
+
+
+
+
+
+
+
+
+
 
 Joy.add({
 	name: "// Note",
@@ -32,7 +43,7 @@ Joy.add({
 		self.dom = dom;
 
 		// Comment Box
-		self.box = new ui.TextBox({
+		self.box = new Joy.ui.TextBox({
 			multiline: true,
 			placeholder: "// your notes here",
 			value: data.value,
@@ -134,7 +145,7 @@ Joy.add({
 		// Create a chooser: selecting it switches your refID to that one
 		// TODO: go from switched TO a new ID?
 		if(!widgetConfig.noChooser){
-			var moreButton = new ui.Button({
+			var moreButton = new Joy.ui.Button({
 				onclick: function(){
 					_showVariableChooser();
 				},
@@ -194,7 +205,7 @@ Joy.add({
 			}
 
 			// Show all possible variables to link this to!
-			modal.Chooser({
+			Joy.modal.Chooser({
 				source: self.dom,
 				options: options,
 				onchange: function(newRefID){

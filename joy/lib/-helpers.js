@@ -2,6 +2,8 @@
 
 RANDOM CRAP TO MAKE MY LIFE EASIER
 
+TODO: namespace these to avoid conflict
+
 **********************************/
 
 // For true believers

@@ -1,14 +1,18 @@
-var ui = {};
+(function(){
 
-ui.init = function(editor){
+// SINGLETON
+var ui = {};
+Joy.ui = ui;
+
+ui.init = function(master){
 
 	// CSS
-	editor.dom.classList.add("joy-editor");
+	master.dom.classList.add("joy-master");
 
 	// Manual Scroll
-	editor.container.addEventListener('wheel', function(event){
+	master.container.addEventListener('wheel', function(event){
 		var delta = event.deltaY;
-		editor.container.scrollTop += delta;
+		master.container.scrollTop += delta;
 		event.preventDefault();
 		return false;
 	});
@@ -59,7 +63,7 @@ ChooserButton's config:
 	staticLabel: "+", (optional)
 	options: options,
 	onchange: function(value){},
-	position: "left" // optional: for the modal
+	position: "left" // optional: for the Joy.modal
 	styles: ["round", "hollow"] // optional: for the button
 }
 ********************/
@@ -78,7 +82,7 @@ ui.ChooserButton = function(config){
 		onclick: function(){
 
 			// Chooser Modal!
-			modal.Chooser({
+			Joy.modal.Chooser({
 				source: self.dom,
 				options: self.options,
 				onchange: function(value){
@@ -155,6 +159,7 @@ ui.Scrubber = function(config){
 		isDragging = true;
 		startDragX = event.clientX;
 		startDragValue = self.value;
+		if(config.onstart) config.onstart();
 	};
 	var _onmousemove = function(event){
 		if(isDragging){
@@ -184,6 +189,7 @@ ui.Scrubber = function(config){
 	};
 	var _onmouseup = function(){
 		isDragging = false;
+		if(config.onstop) config.onstop();
 	};
 
 	// MOUSE EVENTS
@@ -427,3 +433,5 @@ ui.TextBox = function(config){
 	}
 
 };
+
+})();
