@@ -23,16 +23,48 @@ Joy.add({
 			step: o.step,
 			value: self.getData("value"),
 			onstart: function(){
-				self.top.isCurrentlyEditing = true;
+				self.top.activelyEditingActor = self;
 			},
 			onstop: function(){
-				self.top.isCurrentlyEditing = false;
+				self.top.activelyEditingActor = null;
 			},
 			onchange: function(value){
 				self.setData("value", value);
 			}
 		});
 		self.dom = scrubber.dom;
+
+		// PREVIEW ON HOVER
+		// WIGGLE IT BACK & FORTH +/- 2 (amplitude slowly grows)
+		var _ticker = null;
+		var _fps = 30;
+		var _timer;
+		var _amplitude;
+		self.dom.onmouseenter = function(){
+
+			if(!self.top.canPreview()) return;
+			
+			// Create Preview Data
+			self.previewData = _clone(self.data);
+
+			// Wiggle back & forth
+			_timer = 0;
+			_amplitude = 0;
+			_ticker = setInterval(function(){
+				if(!self.top.canPreview()) return _stopPreview();
+				_timer += Math.TAU/_fps;
+				_amplitude = Math.min(_amplitude+0.05, 2);
+				self.previewData.value = self.data.value + Math.sin(_timer)*_amplitude;
+				self.update();
+			},1000/_fps);
+
+		};
+		var _stopPreview = function(){
+			if(_ticker) clearInterval(_ticker);
+			self.previewData = null;
+			self.update();
+		};
+		self.dom.onmouseleave = _stopPreview;
 
 	},
 	onget: function(my){
@@ -70,10 +102,10 @@ Joy.add({
 						_changeLabelColor();
 					},
 					onopen: function(){
-						self.top.isCurrentlyEditing = true;
+						self.top.activelyEditingActor = self;
 					},
 					onclose: function(){
-						self.top.isCurrentlyEditing = false;
+						self.top.activelyEditingActor = null;
 					}
 				});
 
@@ -89,15 +121,42 @@ Joy.add({
 		};
 		_changeLabelColor();
 
-		// Preview on hover!
-		self.preview(self.dom, function(data, previewData, t){
-			// TODO: better wiggling of color
-			//var v = data.value[2]; // "value", lightness.
-			//v = v + t*0.5;
-			//if(v>1) v=1;
-			//if(v<0) v=0;
-			previewData.value[2] = 0;
-		});
+		// PREVIEW ON HOVER
+		// BOUNCE the HSL Value up & down!
+		var _ticker = null;
+		var _fps = 30;
+		var _initialV, _vel;
+		self.dom.onmouseenter = function(){
+
+			if(!self.top.canPreview()) return;
+			
+			// Create Preview Data
+			_initialV = self.data.value[2];
+			self.previewData = _clone(self.data);
+
+			// Bounce up & down
+			_vel = 0.05;
+			_ticker = setInterval(function(){
+				if(!self.top.canPreview()) return _stopPreview();
+				var hsl = self.previewData.value;
+				hsl[2] += _vel;
+				if(hsl[2] > 1){
+					hsl[2] = 1;
+					_vel *= -1;
+				}
+				if(hsl[2] < 0){
+					hsl[2] = 0;
+					_vel *= -1;
+				}
+				self.update();
+			},1000/_fps);
+		};
+		var _stopPreview = function(){
+			if(_ticker) clearInterval(_ticker);
+			self.previewData = null;
+			self.update();
+		};
+		self.dom.onmouseleave = _stopPreview;
 
 	},
 	onget: function(my){

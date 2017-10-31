@@ -173,18 +173,39 @@ Joy.add({
 			entry.widget = newWidget;
 			entry.actionData = actionData;
 
-			// Preview on hover!
-			self.preview(bulletContainer, function(data, previewData, previewMeta){
+			// PREVIEW ON HOVER
+			// Also tell the action "PREVIEW_PARAM": how far in the action to go?
+			var _calculatePreviewParam = function(event){
+				var param = event.offsetY / bullet.dom.getBoundingClientRect().height;
+				if(param<0) param=0;
+				if(param>1) param=1;
+				_previewAction.PREVIEW_PARAM = param;
+				self.update();
+			};
+			var _previewAction;
+			bulletContainer.onmouseenter = function(event){
+
+				if(!self.top.canPreview()) return;
 				
-				// Previewed Action
+				// Create Preview Data
+				self.previewData = _clone(self.data);
 				var actionIndex = self.entries.indexOf(entry);
-				var previewAction = previewData.actions[actionIndex];
-				//previewAction.PREVIEW_PARAM = previewMeta.param;
+				_previewAction = self.previewData.actions[actionIndex];
 
 				// STOP after that action!
-				previewData.actions.splice(actionIndex+1, 0, {STOP:true});
+				self.previewData.actions.splice(actionIndex+1, 0, {STOP:true});
 
-			});
+				// How far to go along action?
+				_calculatePreviewParam(event);
+
+			};
+			bulletContainer.onmousemove = function(event){
+				if(self.previewData) _calculatePreviewParam(event);
+			};
+			bulletContainer.onmouseleave = function(){
+				self.previewData = null;
+				self.update();
+			};
 
 			return entry;
 

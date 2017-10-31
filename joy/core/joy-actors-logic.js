@@ -9,10 +9,17 @@ Joy.add({
 	init: "Repeat the following {id:'count', type:'scrubber', min:1, placeholder:3} times: "+
 		  "{id:'actions', type:'actions', resetVariables:false}",
 	onact: function(my){
-		for(var i=0; i<my.data.count; i++){
+		
+		// Previewing? How much to preview?
+		var param = 1;
+		if(my.data.PREVIEW_PARAM!==undefined) param=my.data.PREVIEW_PARAM;
+
+		// Loop through it... (as far as preview shows, anyway)
+		for(var i=0; i<my.data.count*param; i++){
 			var message = my.actor.actions.act(my.target);
-			if(message=="STOP") return message;
+			if(message=="STOP") return message; // STOP
 		}
+
 	}
 });
 

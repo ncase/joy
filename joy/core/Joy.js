@@ -35,9 +35,9 @@ function Joy(options){
 
 	// MASTER Options
 	if(self.allowPreview==undefined) self.allowPreview = false;
-	self.isCurrentlyEditing = false;
+	self.activelyEditingActor = null;
 	self.canPreview = function(){
-		return self.allowPreview && !self.isCurrentlyEditing;
+		return self.allowPreview && !self.activelyEditingActor;
 	};
 
 	// And: automatically create MY widget!
@@ -185,33 +185,9 @@ Joy.Actor = function(options, parent, data){
 		return self.dom;
 	};
 
-	// Preview on hover!
+	// "Preview Data"
 	self.previewData = null;
-	self.preview = function(dom, callback){
-
-		// Start & Stop previewing
-		var _preview = function(event){
-			if(!self.top.canPreview()){
-				_stopPreviewing();
-			}else{
-				self.previewData = _clone(self.data);
-				callback(self.data, self.previewData);
-				self.update();
-			}
-		};
-		var _stopPreviewing = function(){
-			self.previewData = null;
-			self.update();
-		};
-
-		// Mouse Events
-		dom.addEventListener("mouseenter",function(event){
-			if(!self.top.canPreview()) return;
-			_preview();
-		}, false);
-		dom.addEventListener("mouseleave", _stopPreviewing);
-
-	};
+	
 
 	/////////////////////////////////
 	// ACTOR <-> PLAYER: "TARGETS" //

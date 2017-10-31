@@ -4,7 +4,14 @@ Joy.add({
 	tags: ["turtle", "action"],
 	init: "Move forward {id:'steps', type:'scrubber', min:0, placeholder:50} steps",
 	onact: function(my){
-		my.target.forward(my.data.steps);
+
+		// Previewing? How much to preview?
+		var param = 1;
+		if(my.data.PREVIEW_PARAM!==undefined) param=my.data.PREVIEW_PARAM;
+
+		// Do it!
+		my.target.forward(my.data.steps*param);
+
 	}
 });
 
@@ -28,14 +35,13 @@ Joy.add({
 	}
 });
 
-/*
 Joy.add({
 	name: "Put brush up/down",
 	type: "turtle/pen",
 	tags: ["turtle", "action"],
 	init: JSON.stringify({
+		id:'pen',
 		type:'choose', 
-		name:'pen',
 		options:[
 			{label:'Put brush up', value:0},
 			{label:'Put brush down', value:1}, 
@@ -50,7 +56,7 @@ Joy.add({
 			case -1: my.target.setPen(!my.target.pen); break;
 		}
 	}
-});*/
+});
 
 window.onload = function(){
 

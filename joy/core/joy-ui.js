@@ -188,8 +188,10 @@ ui.Scrubber = function(config){
 		return newValue;
 	};
 	var _onmouseup = function(){
-		isDragging = false;
 		if(config.onstop) config.onstop();
+		setTimeout(function(){
+			isDragging = false; // so can't "click" if let go on scrubber
+		},1);
 	};
 
 	// MOUSE EVENTS
@@ -219,11 +221,16 @@ ui.Scrubber = function(config){
 			self.setLabel(self.value);
 			_onValueChange(self.value);
 
+			// On Stop editing
+			if(config.onstop) config.onstop();
+
 		}
 	};
 	_preventWeirdCopyPaste(dom);
 	_blurOnEnter(dom);
 	dom.onclick = function(){
+
+		if(isDragging) return; // can't click if I was just dragging!
 
 		_manuallyEditing = true;
 		
@@ -231,6 +238,9 @@ ui.Scrubber = function(config){
 		dom.contentEditable = true;
 		dom.spellcheck = false;
 		_selectAll(dom);
+
+		// On Start editing
+		if(config.onstart) config.onstart();
 
 	};
 	dom.oninput = function(event){

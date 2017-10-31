@@ -69,7 +69,7 @@ modal.show = function(ui){
 	modal.box.style.top = y+"px";
 
 	// On Open
-	if(modal.currentUI.onopen) modal.currentUI.onopen();
+	if(modal.currentUI.config.onopen) modal.currentUI.config.onopen();
 
 };
 modal.hide = function(){
@@ -78,7 +78,7 @@ modal.hide = function(){
 	modal.dom.style.display = "none"; // bye
 
 	// On Close
-	if(modal.currentUI.onclose) modal.currentUI.onclose();
+	if(modal.currentUI.config.onclose) modal.currentUI.config.onclose();
 
 };
 
