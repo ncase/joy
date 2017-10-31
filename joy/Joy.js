@@ -190,6 +190,43 @@ Joy.Actor = function(options, parent, data){
 	if(self.onchange) self.on("change",self.onchange);
 	if(self.onpreview) self.on("preview",self.onpreview);
 
+	// Preview on hover!
+	self.isCurrentlyEditing = false;
+	self.previewData = null;
+	self.preview = function(dom, callback){
+
+		var _t = 0;
+		var _ticker = null;
+		var _previewCallback = callback;
+
+		// Start & Stop previewing
+		var _preview = function(){
+			if(self.isCurrentlyEditing){
+				_stopPreviewing();
+			}else{
+				self.previewData = _clone(self.data);
+				_previewCallback(self.data, self.previewData, Math.sin(_t));
+				self.trigger("change");
+				_t += 0.1;
+			}
+		};
+		var _stopPreviewing = function(){
+			_t = 0;
+			clearInterval(_ticker);
+			self.previewData = null;
+			self.trigger("change");
+		};
+
+		// Mouse Events
+		dom.addEventListener("mouseover",function(){
+			if(self.isCurrentlyEditing) return;
+			_preview();
+			_ticker = setInterval(_preview, 1000/60);
+		});
+		dom.addEventListener("mouseout", _stopPreviewing);
+
+	};
+
 	/////////////////////////////////
 	// ACTOR <-> PLAYER: "TARGETS" //
 	/////////////////////////////////
@@ -198,8 +235,15 @@ Joy.Actor = function(options, parent, data){
 	self.onact = self.onact || function(){};
 	self.act = function(target){
 
+		// Real or Preview data?
+		var data;
+		if(self.previewData){
+			data = _clone(self.previewData);
+		}else{
+			data = _clone(self.data);
+		}
+
 		// Try to pre-evaluate all data beforehand!
-		var data = _clone(self.data);
 		self.children.forEach(function(childActor){
 			var prop = childActor.prop;
 			if(prop){
@@ -221,12 +265,23 @@ Joy.Actor = function(options, parent, data){
 	// ...or GET INFO from targets.
 	self.onget = self.onget || function(){};
 	self.get = function(target){
+
+		// Real or Preview data?
+		var data;
+		if(self.previewData){
+			data = _clone(self.previewData);
+		}else{
+			data = _clone(self.data);
+		}
+
+		// Message
 		var message = {
 			actor: self,
 			target: target,
-			data: self.data
+			data: data
 		};
 		return self.onget(message);
+
 	};
 
 	/////////////////////////////////

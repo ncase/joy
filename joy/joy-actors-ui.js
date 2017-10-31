@@ -46,6 +46,12 @@ Joy.add({
 				max: o.max,
 				step: o.step
 			}, data);
+
+			// HACK: Preview on hover!
+			self.preview(self.currentWidget, function(data, previewData, t){
+				previewData.value = data.value + t*5;
+			});
+
 		};
 
 		// Create Variable
@@ -245,6 +251,8 @@ Joy.add({
 		var colorButton = new ui.Button({
 			label: "&nbsp;",
 			onclick: function(){
+
+				self.isCurrentlyEditing = true;
 				modal.Color({
 					source: self.dom,
 					value: data.value,
@@ -253,8 +261,12 @@ Joy.add({
 						data.value = value;
 						_changeLabelColor();
 						self.trigger("change", data.value); // you oughta know!
+					},
+					onclose: function(){
+						self.isCurrentlyEditing = false;
 					}
 				});
+				
 			},
 			styles:["joy-color"]
 		});
@@ -266,6 +278,16 @@ Joy.add({
 			colorButton.dom.style.borderColor = "rgba(0,0,0,0.1)";
 		};
 		_changeLabelColor();
+
+		// Preview on hover!
+		self.preview(self.dom, function(data, previewData, t){
+			// TODO: better wiggling of color
+			var v = data.value[2]; // "value", lightness.
+			v = v + t*0.5;
+			if(v>1) v=1;
+			if(v<0) v=0;
+			previewData.value[2] = v;
+		});
 
 	},
 	onget: function(my){

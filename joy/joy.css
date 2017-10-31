@@ -28,16 +28,31 @@ More prefixing to avoid NAME COLLISIONS
 
 /* Entry */
 .joy-actions #joy-list > div{
+
 	overflow: hidden;
-	margin-bottom: 0.3em;
+
+	/* Thank you https://css-tricks.com/using-flexbox/ */
+	display: -webkit-box;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
+
 }
-.joy-actions #joy-list > div #joy-bullet{
-	float: left;
-	text-align: center;
+.joy-actions #joy-list > div #joy-bullet-container{
+	/*float: left;*/
+	-webkit-box-flex: 1;
+	-moz-box-flex: 1;
+	width: 1.5em;
+	-webkit-flex: 1;
+	-ms-flex: 1;
+	flex: 1;
+	text-align: left;
 }
 .joy-actions #joy-list > div #joy-widget{
-	float: right;
+	/*float: right;*/
 	width: calc(100% - 2em);
+	margin-bottom: 0.3em;
 }
 
 /***************/

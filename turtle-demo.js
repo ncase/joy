@@ -64,11 +64,15 @@ window.onload = function(){
 	window.joy = Joy({
 		data: data,
 		init: "I'm a turtle! Do the following: {prop:'turtleInstructions', type:'actions'} <hr> {type:'save'}",
+		modules: ["basic", "turtle", "logic", "math", "advanced_math"],
 		container: "#editor",
 		onchange: function(my){
 			turtle.start();
 			my.actor.turtleInstructions.act(turtle);
 			turtle.draw();
+		},
+		onpreview: function(my){
+			console.log('derp');
 		}
 	});
 

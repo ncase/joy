@@ -85,6 +85,7 @@ Joy.add({
 				styles: ["joy-bullet"]
 			});
 			bullet.dom.id = "joy-bullet";
+
 			return bullet;
 
 		};
@@ -145,7 +146,10 @@ Joy.add({
 
 			// The Bullet is a Chooser!
 			var bullet = _createBullet(entry);
-			entryDOM.appendChild(bullet.dom);
+			var bulletContainer = document.createElement("div");
+			bulletContainer.id = "joy-bullet-container";
+			entryDOM.appendChild(bulletContainer);
+			bulletContainer.appendChild(bullet.dom);
 
 			// New Actor!
 			var newActor = self.addChild({type:actionData.type}, actionData);
@@ -161,6 +165,12 @@ Joy.add({
 			entry.actor = newActor;
 			entry.widget = newWidget;
 			entry.actionData = actionData;
+
+			// Preview on hover!
+			self.preview(bulletContainer, function(data, previewData){
+				var actionIndex = self.entries.indexOf(entry);
+				previewData.actions = previewData.actions.slice(0,actionIndex+1);
+			});
 
 			return entry;
 
@@ -227,7 +237,8 @@ Joy.add({
 		if(my.data.resetVariables) my.target._vars = {};
 
 		// Do those actions, baby!!!
-		for(var i=0; i<my.actor.entries.length; i++){
+		//for(var i=0; i<my.actor.entries.length; i++){
+		for(var i=0; i<my.data.actions.length; i++){ // HACK
 			var actor = my.actor.entries[i].actor;
 			actor.act(my.target);
 		}

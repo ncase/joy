@@ -175,6 +175,7 @@ Color's config:
 	source: [who this modal dialog should be "coming from"]
 	value: [currently selected value, if any]
 	onchange: function(value){}, // callback 
+	onclose: function(){}
 };
 ********************/
 modal.Color = function(config){
@@ -473,6 +474,9 @@ modal.Color = function(config){
 		dom.removeEventListener("mousedown", _onmousedown);
 		window.removeEventListener("mousemove", _onmousemove);
 		window.removeEventListener("mouseup", _onmouseup);
+
+		// Hey, i've been closed
+		if(config.onclose) config.onclose();
 
 		// Hide Modal
 		modal.hide();
