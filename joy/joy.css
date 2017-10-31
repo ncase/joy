@@ -1,0 +1,315 @@
+/*
+More prefixing to avoid NAME COLLISIONS
+*/
+
+.joy-editor, .joy-actions, .joy-button, .joy-scrubber, .joy-modal-chooser{
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	cursor:default;
+}
+
+.joy-editor{
+	display: block;
+    margin: 1.5em;
+}
+
+/***************/
+/* ACTIONS *****/
+/***************/
+
+.joy-actions{
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.joy-actions #joy-list{}
+
+/* Entry */
+.joy-actions #joy-list > div{
+	overflow: hidden;
+	margin-bottom: 0.3em;
+}
+.joy-actions #joy-list > div #joy-bullet{
+	float: left;
+	text-align: center;
+}
+.joy-actions #joy-list > div #joy-widget{
+	float: right;
+	width: calc(100% - 2em);
+}
+
+/***************/
+/* BUTTON ******/
+/***************/
+
+.joy-button{
+	
+	display: inline-block;
+
+	line-height: 1.5em;
+	padding: 0 0.3em;
+
+	border-radius: 5px;
+	border: 2px solid #ccc;
+	
+	cursor: pointer;
+
+}
+
+.joy-button.joy-bullet{
+	
+	border-radius: 1000px; /* infinite roundness */
+	width: 1.5em;
+    height: 1.5em;
+    padding: 0;
+	text-align: center;
+
+	background: none;
+	border: 1px solid #bebebe;
+	color: #b7b7b7;
+}
+.joy-button.joy-bullet:hover{
+	background: #fff;
+	color: #333;
+}
+
+.joy-button.joy-color{
+	border-radius: 1000px; /* infinite roundness */
+	width: 1.5em;
+    height: 1.5em;
+    padding: 0;
+}
+
+.joy-button.joy-more{
+	border: none;
+	width: 0.5em;
+    height: 1em;
+    padding: 0;
+    position: relative;
+    top: 0.1em;
+    margin-left: 0.1em;
+}
+/* from: https://css-tricks.com/three-line-menu-navicon/ */
+.joy-button.joy-more:before{
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 0.4em;
+	width: 100%;
+	height: 2px;
+	background: #bebebe;
+	border-radius:5px; 
+	box-shadow: 
+	0 4px 0 0 #bebebe,
+	0 8px 0 0 #bebebe;
+}
+
+/***************/
+/* TEXTBOX *****/
+/***************/
+
+.joy-textbox{
+	font-size: 0.6em;
+	border-radius: 5px;
+	border: 1px solid rgba(0,0,0,0.2);
+	width: 100%;
+}
+.joy-textbox.box{
+    font-family: inherit;
+    padding: 0.3em 0.4em;
+    display: block;
+    background: #333;
+    color: #fff;
+    font-size: inherit;
+    font-size: 0.85em;
+}
+textarea.joy-textbox{
+	resize: none;
+}
+
+/***************/
+/* SCRUBBER ****/
+/***************/
+
+.joy-number{
+	/* prevent number & chooser separating on newline */
+	display: inline-block;
+}
+
+.joy-scrubber{
+	position: relative;
+    display: inline-block;
+    cursor: col-resize;
+    min-width: 0.8em;
+    text-align: center;
+}
+.joy-scrubber:after{
+	content: '';
+	display: block;
+	border-bottom: #aaa 4px dotted;
+	width: 100%;
+	position: relative;
+	top:-0.3em;
+}
+.joy-scrubber:before{
+	content: '↔';
+	display: none;
+	position: absolute;
+	font-size: 0.6em;
+	color: inherit;
+	width: 90%;
+	height: 0px;
+	text-align: center;
+	top:-1em;
+}
+.joy-scrubber:hover:before{
+	display: block;
+}
+
+/***************/
+/* STRING *****/
+/***************/
+
+.joy-string{
+	position: relative;
+    display: inline;
+    padding-bottom: 0px;
+    border-bottom: 2px solid #bbb;
+	cursor: text;
+}
+.joy-string:focus{
+    outline: none;
+}
+
+
+/*****************/
+/* CHOOSER MODAL */
+/*****************/
+
+#joy-modal{
+	display: none;
+	position: fixed;
+	top:0; left:0;
+	z-index: 99999; /* the most elegant css */
+	width: 100%;
+	height: 100%;
+}
+
+#joy-modal #joy-bg{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+}
+
+#joy-modal #joy-box{
+	
+	position: absolute;
+
+	font-size: 0.69em;
+	line-height: 1.3em;
+	color: #000;
+
+	padding: 0.2em 0;
+	border-radius: 0.5em;
+
+	min-width: 50px;
+	max-width: 400px;
+
+}
+
+/* CHOOSER */
+
+/* list of categories */
+.joy-modal-chooser > div{
+	overflow: hidden;
+}
+/* category */
+.joy-modal-chooser > div > div{
+	overflow: hidden;
+	margin: 0.2em 0;
+}
+.joy-modal-chooser > div > div:nth-last-child(n+2){
+	border-bottom: 1px solid #ccc;
+	padding-bottom: 0.4em;
+    margin-bottom: 0.4em;
+}
+/* category entry */
+.joy-modal-chooser > div > div > div{
+	display: block;
+	cursor: pointer;
+	padding: 0 0.65em;
+}
+.joy-modal-chooser > div > div > div:hover{
+	background: #e6e6e6;
+}
+.joy-modal-chooser > div > div.single-column > div{
+	display: block;
+	padding: 0 0.5em;
+}
+
+/* COLOR */
+
+.joy-modal-color{
+    /*margin: 5px;*/
+    position: relative;
+}
+.joy-modal-color > canvas{
+	position: absolute;
+}
+
+/* Sweet arrow boxes, thx to http://www.cssarrowplease.com/ */
+
+.arrow_box{
+	position: relative;
+	background: #ffffff;
+	border: 2px solid #ccc;
+}
+.arrow_box:after, .arrow_box:before {
+	
+	
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+.arrow_box:after {
+	border-color: rgba(255, 255, 255, 0);
+	border-width: 14px;
+	
+}
+.arrow_box:before {
+	border-color: rgba(221, 221, 221, 0);
+	border-width: 17px;
+}
+
+/* Below */
+.arrow_box[position=below]:after, .arrow_box[position=below]:before {
+	bottom: 100%;
+	left: 50%;
+}
+.arrow_box[position=below]:after {
+	border-bottom-color: #ffffff;
+	margin-left: -14px;
+}
+.arrow_box[position=below]:before {
+	border-bottom-color: #ccc;
+	margin-left: -17px;
+}
+
+/* Left */
+.arrow_box[position=left]:after, .arrow_box[position=left]:before {
+	left: 100%;
+	top: 50%;
+}
+.arrow_box[position=left]:after {
+	border-left-color: #ffffff;
+	margin-top: -14px;
+}
+.arrow_box[position=left]:before {
+	border-left-color: #ccc;
+	margin-top: -17px;
+}
