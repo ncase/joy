@@ -17,6 +17,7 @@ At the top layer is the JOY MASTER. You just pass in a template, like so:
 	data: data,
 	allowPreview: true,
 	container: "#editor",
+	modules: ["turtle", "logic"],
 	onupdate: function(my){
 		my.instructors.act(target);
 	}
@@ -33,12 +34,19 @@ function Joy(options){
 	// I'm a Joy.Actor!
 	Joy.Actor.call(self, options);
 
-	// MASTER Options
+	// MASTER OPTION: Allow Preview?
 	if(self.allowPreview==undefined) self.allowPreview = false;
 	self.activelyEditingActor = null;
 	self.canPreview = function(){
 		return self.allowPreview && !self.activelyEditingActor;
 	};
+
+	// MASTER OPTION: Modules to import?
+	if(self.modules){
+		for(var i=0;i<self.modules.length;i++){
+			Joy.loadModule(self.modules[i]);
+		}
+	}
 
 	// And: automatically create MY widget!
 	self.createWidget();
@@ -270,11 +278,13 @@ Joy.add({
 
 *****************/
 
-// Templates 
+// Add Template 
 Joy.templates = [];
 Joy.add = function(template){
 	Joy.templates.push(template);
 };
+
+// Get Template
 Joy.getTemplateByType = function(type){
 	var template = Joy.templates.find(function(template){
 		return template.type==type;
@@ -286,6 +296,26 @@ Joy.getActorsByTag = function(tag){
 	return Joy.templates.filter(function(template){
 		return template.tags.indexOf(tag)>=0;
 	});
+};
+
+// Modify Templates
+Joy.mod = function(type, callback){
+
+	// New Template inherits from old...
+	var newTemplate = {};
+	var _old = Joy.getTemplateByType(type);
+	_configure(newTemplate, _old);
+
+	// Then inherits from modifications
+	var modifications = callback(_old);
+	_configure(newTemplate, modifications);
+
+	// Then, remove old one from array
+	_removeFromArray(Joy.templates, _old);
+
+	// And add the new one!
+	Joy.add(newTemplate);
+
 };
 
 // Converts a string into an ENTIRE ACTOR
@@ -360,6 +390,25 @@ Joy.initializeWithString = function(self, markup){
 
 	};
 
+};
+
+/*****************
+
+JOY MODULES
+
+So that a player can slowly step up the staircase of complexity
+(also maybe import Actors in the future?)
+
+*****************/
+
+Joy.modules = {};
+Joy.module = function(id, callback){
+	Joy.modules[id] = callback;
+};
+Joy.loadModule = function(id){
+	var module = Joy.modules[id];
+	if(!module) throw Error("There's no module called '"+id+"'!");
+	module();
 };
 
 /******************************

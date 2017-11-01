@@ -126,7 +126,7 @@ modal.Chooser = function(config){
 
 		// Create categories, if any!
 		var _anyCategories = false;
-		for(var i=config.options.length-1; i>=0; i--){ // in REVERSE order.
+		for(var i=0; i<config.options.length; i++){
 			var option = config.options[i];
 			var category = option.category;
 			if(category){

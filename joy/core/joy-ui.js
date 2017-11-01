@@ -154,6 +154,7 @@ ui.Scrubber = function(config){
 
 	// DRAG IT, BABY
 	var isDragging = false;
+	var wasDragging = false;
 	var startDragX, startDragValue;
 	var _onmousedown = function(event){
 		isDragging = true;
@@ -163,6 +164,8 @@ ui.Scrubber = function(config){
 	};
 	var _onmousemove = function(event){
 		if(isDragging){
+
+			wasDragging = true;
 
 			// What's the step?
 			var step = Math.pow(0.1,self.sigfigs);
@@ -188,9 +191,10 @@ ui.Scrubber = function(config){
 		return newValue;
 	};
 	var _onmouseup = function(){
+		isDragging = false;
 		if(config.onstop) config.onstop();
 		setTimeout(function(){
-			isDragging = false; // so can't "click" if let go on scrubber
+			wasDragging = false; // so can't "click" if let go on scrubber
 		},1);
 	};
 
@@ -230,7 +234,7 @@ ui.Scrubber = function(config){
 	_blurOnEnter(dom);
 	dom.onclick = function(){
 
-		if(isDragging) return; // can't click if I was just dragging!
+		if(wasDragging) return; // can't click if I was just dragging!
 
 		_manuallyEditing = true;
 		
