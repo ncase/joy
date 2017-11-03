@@ -266,10 +266,10 @@ Joy.add({
 	onact: function(my){
 
 		// Create _vars, if not already there
-		if(!my.target._vars) my.target._vars={}; 
+		if(!my.target._variables) my.target._variables={}; 
 
 		// Reset all of target's variables?
-		if(my.data.resetVariables) my.target._vars = {};
+		if(my.data.resetVariables) my.target._variables = {};
 
 		// Do those actions, baby!!!
 		for(var i=0; i<my.data.actions.length; i++){
@@ -279,7 +279,7 @@ Joy.add({
 			if(actionData.STOP) return "STOP";
 
 			// Run 
-			var actor = my.actor.entries[i].actor;
+			var actor = my.actor.entries[i].actor; // TODO: THIS IS A HACK AND SHOULD NOT RELY ON THAT
 			var actorMessage = actor.act(my.target, actionData); // use ol' actor, but GIVEN data.
 			if(actorMessage=="STOP") return actorMessage;
 

@@ -325,9 +325,6 @@ ui.String = function(config){
 	dom.appendChild(prefixDOM);
 	dom.appendChild(input);
 	dom.appendChild(suffixDOM);
-	var color = config.color || "";
-	dom.style.color = color;
-	dom.style.borderColor = color;
 
 	// On input!
 	input.oninput = function(event){
@@ -359,6 +356,14 @@ ui.String = function(config){
 		input.innerText = value;
 		_fixStringInput(input);
 	};
+
+	// Set Color, why not
+	self.setColor = function(color){
+		color = _forceToRGB(color);
+		dom.style.color = color;
+		dom.style.borderColor = color;
+	}
+	if(config.color) self.setColor(config.color);
 
 	// Styles
 	self.styles = config.styles || [];

@@ -2,6 +2,8 @@
 // FUNDAMENTAL USER INTERACE ACTORS /////
 /////////////////////////////////////////
 
+// TODO: Angle widget
+
 /****************
 
 Raw number widget: JUST the scrubber, no chooser
@@ -34,8 +36,8 @@ Joy.add({
 		});
 		self.dom = scrubber.dom;
 
-		// PREVIEW ON HOVER
-		// WIGGLE IT BACK & FORTH +/- 2 (amplitude slowly grows)
+		// PREVIEW ON HOVER. WIGGLE IT JUST ONCE.
+		
 		var _ticker = null;
 		var _fps = 30;
 		self.dom.onmouseenter = function(){
@@ -45,18 +47,21 @@ Joy.add({
 			// Create Preview Data
 			self.previewData = _clone(self.data);
 
-			// Wiggle back & forth by 8%
+			// Wiggle by 5%... as long as that's not less than 0.5, not more than 2.
+			var _amplitude = Math.abs(self.data.value*0.05);
+			if(_amplitude<0.5) _amplitude=0.5;
+			if(_amplitude>2) _amplitude=2;
 			var _timer = 0;
-			var _ampMax = self.data.value*0.08; // 8%
-			var _ampRatio = 0;
-			var _amplitude = 0;
 			_ticker = setInterval(function(){
-				if(!self.top.canPreview()) return _stopPreview();
-				_timer += Math.TAU/_fps;
-				_ampRatio = Math.min(_ampRatio+1/(2*_fps), 1);
-				_amplitude = _ampMax*_ampRatio;
+
+				if(!self.top.canPreview()) return _stopPreview(); // don't even
+
+				_timer += (Math.TAU/_fps)/0.25; // 0.25 seconds
 				self.previewData.value = self.data.value + Math.sin(_timer)*_amplitude;
 				self.update();
+
+				if(_timer>Math.TAU) _stopPreview(); // yer done, son.
+
 			},1000/_fps);
 
 		};
@@ -66,13 +71,14 @@ Joy.add({
 			self.update();
 		};
 		self.dom.onmouseleave = _stopPreview;
+		
 
 	},
 	onget: function(my){
 		return my.data.value;
 	},
 	placeholder: {
-		value:0
+		value: 3
 	}
 });
 
@@ -95,6 +101,7 @@ Joy.add({
 		var colorButton = new Joy.ui.Button({
 			label: "&nbsp;",
 			onclick: function(){
+
 				Joy.modal.Color({ // TODO: precision for those floats, y'know
 					source: self.dom,
 					value: self.getData("value"),
@@ -126,7 +133,7 @@ Joy.add({
 		// BOUNCE the HSL Value up & down!
 		var _ticker = null;
 		var _fps = 30;
-		var _initialV, _vel;
+		var _initialV, _vel, _timer;
 		self.dom.onmouseenter = function(){
 
 			if(!self.top.canPreview()) return;
@@ -135,10 +142,14 @@ Joy.add({
 			_initialV = self.data.value[2];
 			self.previewData = _clone(self.data);
 
-			// Bounce up & down
-			_vel = 0.05;
+			// Bounce up & down for HALF a second
+			_timer = 0;
+			_vel = 2*(2/_fps);
 			_ticker = setInterval(function(){
-				if(!self.top.canPreview()) return _stopPreview();
+
+				if(!self.top.canPreview()) return _stopPreview(); // don't
+
+				// Bounce up & down
 				var hsl = self.previewData.value;
 				hsl[2] += _vel;
 				if(hsl[2] > 1){
@@ -150,6 +161,11 @@ Joy.add({
 					_vel *= -1;
 				}
 				self.update();
+
+				// Done!
+				_timer += 2/_fps;
+				if(_timer>=1) _stopPreview();
+
 			},1000/_fps);
 		};
 		var _stopPreview = function(){
@@ -229,33 +245,29 @@ Widget Options:
 Joy.add({
 	type: "string",
 	tags: ["ui"],
-	widget: function(self){
-
-		var data = self.data;
+	initWidget: function(self){
 
 		// String *IS* DOM
 		var o = self.options;
-		var string = new Joy.ui.String({
+		self.stringUI = new Joy.ui.String({
 			prefix: o.prefix,
 			suffix: o.suffix,
 			color: o.color,
-			value: data.value,
+			value: self.getData("value"),
 			onchange: function(value){
-				self.lock(function(){
-					data.value = value;
-				});
-				self.update(); // you oughta know!
+				self.setData("value", value);
 			}
 		});
-		self.dom = string.dom;
+		self.dom = self.stringUI.dom;
 
 		// When data's changed, externally
-		self.onDataChange = function(data){
-			string.setString(data.value);
+		self.onDataChange = function(){
+			var value = self.getData("value");
+			self.stringUI.setString(value);
 		};
 
 	},
-	get: function(my){
+	onget: function(my){
 		return my.data.value;
 	},
 	placeholder: "???"

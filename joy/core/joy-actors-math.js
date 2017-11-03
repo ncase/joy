@@ -4,17 +4,264 @@
 
 Joy.module("math", function(){
 
-	Joy.mod("number", function(_old){
+	/*********************
+
+	Alright. This is gonna be a big one.
+	It needs to be able to chain math elements,
+	and each element needs to be able to switch between
+	scrubbers, variables, and other number-getter actors.
+
+	Data:
+	{
+		type: "number",
+		chain:[
+			{type:"number_raw", value:3},
+			{type:"choose", value:"*"},
+			{type:"variableName", refID:whatever},
+			{type:"choose", value:"+"},
+			{type:"turtle/getAngle"}
+		]
+	}
+
+	*********************/
+	Joy.modify("number", "number_raw", function(_old){
 		return {
+			init: function(self){
+
+				// Force data to a chain...
+				var originalValue = self.getData("value");
+				if(typeof originalValue==="number"){
+					self.setData("value",undefined,true); // delete "value", no update
+					self.setData("chain",[
+						{type:"number_raw", value:originalValue},
+						{type:"choose", value:"+"}, // TEST!
+						{type:"number_raw", value:2} // TEST!
+					],true); // create "chain", no update
+				}
+
+				// MAKE A NEW CHAIN ACTOR
+				self._makeNewChainActor = function(chainItem){
+					var chainActor;
+					var type = chainItem.type;
+					switch(type){
+
+						// Elements
+						case "number_raw":
+							chainActor = self.addChild({type:type}, chainItem);
+							break;
+						case "variableName":
+							chainActor = self.addChild({
+								type: type,
+								variableType: 'number',
+								noChooser: true
+							}, chainItem);
+							break;
+
+						// Operand
+						case "choose":
+							chainActor = self.addChild({
+								type:type, 
+								options:[
+									{ label:"+", value:"+" },
+									{ label:"-", value:"-" }, 
+									{ label:"&times;", value:"*" },
+									{ label:"&divide;", value:"/" }
+								]
+							}, chainItem);
+							break;
+
+					}
+					return chainActor;
+				}
+
+				// Create an actor for each element in the chain
+				self.chainActors = []; // keep a chain parallel to children. this one's in ORDER.
+				var chain = self.getData("chain");
+				for(var i=0; i<chain.length; i++){
+					var chainActor = self._makeNewChainActor(chain[i]);
+					self.chainActors.push(chainActor);
+				}
+
+				// REPLACE A CHAIN ACTOR *AND DATA*
+				self._replaceChainActor = function(oldChainActor, newChainActor){
+
+					// Get index of old actor & replace actor
+					var oldIndex = self.chainActors.indexOf(oldChainActor);
+					_replaceInArray(self.chainActors, oldChainActor, newChainActor);
+					
+					// now, replace THE DATA in the chain!
+					var chain = self.getData("chain");
+					chain[oldIndex] = newChainActor.data;
+
+					// update manually!
+					self.update();
+
+				};
+
+			},
 			initWidget: function(self){
-				var container = document.createElement("span");
-				container.innerHTML = "AHHH";
-				_old.initWidget(self);
-				container.appendChild(self.dom);
-				self.dom = container;
+
+				// Container!
+				self.dom = document.createElement("span");
+
+				// Show Chooser!
+				var _showChooser = function(chainActor){
+
+					var options = [];
+
+					// Show placeholder number (unless i'm a number_raw, or there isn't one)
+					if(chainActor.type!="number_raw"){
+						var placeholderNumber = self.placeholder.value;
+						if(typeof placeholderNumber==="number"){
+							options.push({
+								label: placeholderNumber,
+								value: {
+									type: "number_raw",
+									value: placeholderNumber
+								}
+							});
+						}
+					}
+
+					// Show possible variables (except the current variable)
+					var refs = Joy.getReferencesByTag(self, "number");
+					var myRefID;
+					if(chainActor.type=="variableName") myRefID=chainActor.getData("refID");
+					refs.forEach(function(ref){
+						if(ref.id==myRefID) return; // don't show SELF
+						options.push({
+							label: "["+ref.data.value+"]",
+							value: {
+								type: "variableName",
+								refID: ref.id
+							}
+						});
+					});
+
+					// Show all these dang options!
+					Joy.modal.Chooser({
+						source: chainActor.dom,
+						options: options,
+						onchange: function(newValue){
+
+							console.log(newValue);
+							
+							// MAKE NEW CHAIN ACTOR.
+							var newChainActor = self._makeNewChainActor(newValue);
+
+							// REPLACE CHAIN ACTOR
+							self._replaceChainActor(chainActor, newChainActor);
+
+							// MAKE NEW CHAIN WIDGET
+							self._makeChainWidget(newChainActor);
+
+							// REPLACE CHAIN WIDGET
+							self._replaceChainWidget(chainActor, newChainActor);
+
+						}
+					});
+
+				};
+
+				// Chain DOMs
+				var chainDOMs = [];
+
+				// CREATE CHAIN WIDGET
+				self._makeChainWidget = function(chainActor){
+					chainActor.createWidget();
+				};
+
+				// REPLACE CHAIN WIDGET
+				self._replaceChainWidget = function(oldChainActor, newChainActor){
+					oldChainActor.dom.parentNode.replaceChild(newChainActor.dom, oldChainActor.dom);
+				};
+
+				// For each chain actor, put in that widget
+				for(var i=0; i<self.chainActors.length; i++){
+					
+					// Put in the chain actor!
+					var chainActor = self.chainActors[i];
+					self._makeChainWidget(chainActor);
+					if(i>0) self.dom.appendChild(_nbsp()); // space 'em
+					self.dom.appendChild(chainActor.dom);
+
+					// Also, if it's an element, clicking it reveals options
+					if(i%2==0){
+						(function(ca){
+							ca.dom.onclick = function(){
+								_showChooser(ca);
+							};
+						})(chainActor);
+					}
+
+				}
+
+			},
+			onget: function(my){
+				var result;
+				for(var i=0; i<my.data.chain.length; i+=2){
+
+					// Synched indices!
+					var chainActor = my.actor.chainActors[i]; 
+
+					// Evaluate element
+					var num;
+					switch(chainActor.type){
+						case "number_raw":
+							num = chainActor.get(my.target);
+							break;
+						case "variableName":
+							var _variables = my.target._variables;
+							var varname = chainActor.get(my.target); // it's just a synchronized string
+							num = _variables[varname];
+							break; 
+					}
+
+					// First one: Result's just num
+					if(i==0){
+						result = num;
+					}else{
+						// Evaluate operand & run it
+						var operandActor = my.actor.chainActors[i-1];
+						var op = operandActor.get();
+						switch(op){
+							case "+": result+=num; break;
+							case "-": result-=num; break;
+							case "*": result*=num; break;
+							case "/": result/=num; break;
+						}
+					}
+
+					// TODO: ORDER OF OPERATIONS, I GUESS.
+
+				}
+				return result;
 			}
 		};
 	});
+
+	/****************
+
+	Set a variable to some number.
+
+	****************/
+	Joy.add({
+		type: "math/set",
+		name: "Set [thing] to [number]",
+		tags: ["math", "action"],
+		init: "Set {id:'varname', type:'variableName', variableType:'number'} to {id:'value', type:'number'}",
+		onact: function(my){
+			var _variables = my.target._variables;
+			var varname = my.data.varname; // it's just a synchronized string
+			_variables[varname] = my.data.value; // Set the variable
+		}
+	});
+
+	/****************
+
+	Do math on some variable
+
+	****************/
 
 });
 
@@ -214,176 +461,3 @@ Joy.add({
 
 });
 */
-
-/****************
-
-Variable Names:
-THEY'RE JUST SYNC'D STRINGS w/ A CHOOSER, MAYBE.
-
-WidgetConfig:
-{data:'varname', type:'variableName', variableType:'number', noChooser:true}
-
-
-Joy.add({
-	type: "variableName",
-	tags: ["ui"],
-	widget: function(self){
-
-		var data = self.data;
-		var widgetConfig = self.widgetConfig;
-
-		// Config
-		var variableType = widgetConfig.variableType;
-
-		// DOM
-		self.dom = document.createElement("span");
-
-		// Creates a reference if there already isn't one
-		var topdata = self.top.data;
-		if(!data.refID){
-			_createNewReference();
-		}
-		function _createNewReference(){
-			var referenceTags = ["variable", variableType];
-			var referenceData = {
-				value: _uniqueVariableName(),
-				color: _randomColor()
-			};
-			var reference = Joy.createReference(topdata, referenceTags, referenceData); // Create it!
-			data.refID = reference.id;
-		}
-
-		// Watching & unwatching references!
-		self.reference = null;
-		function _updateReference(kill){
-
-			// If it's already the same, forget it
-			if(!kill & self.reference && self.reference.id==data.refID) return;
-
-			// Unwatch old
-			if(self.reference) Joy.unwatchReference(topdata, self.reference.id);
-
-			// Watch new!
-			if(!kill) self.reference = Joy.watchReference(topdata, data.refID);
-
-		}
-		_updateReference();
-		self.onkill = function(){
-			_updateReference("kill");
-		};
-
-		// Create a string widget
-		self.stringWidget = null;
-		function _createStringWidget(){
-
-			// Create new String Widget
-			var stringData = self.reference.data;
-			var newStringWidget = self.createWidget({
-				type: "string",
-				prefix: "[",
-				suffix: "]",
-				color: stringData.color
-			}, stringData);
-
-			// If there's an old string widget...
-			if(self.stringWidget){
-				self.replaceWidget(self.stringWidget, newStringWidget); // replace it!
-			}else{
-				self.dom.appendChild(newStringWidget.dom); // just add it!
-			}
-			self.stringWidget = newStringWidget;
-
-		}
-		_createStringWidget();
-
-		// Create a chooser: selecting it switches your refID to that one
-		// TODO: go from switched TO a new ID?
-		if(!widgetConfig.noChooser){
-			var moreButton = new Joy.ui.Button({
-				onclick: function(){
-					_showVariableChooser();
-				},
-				styles: ["joy-more"]
-			});
-			self.dom.appendChild(moreButton.dom);
-		}
-
-		///////////////////////////////////////////
-		// HELPER: Create a unique variable name //
-		///////////////////////////////////////////
-
-		function _uniqueVariableName(){
-			var references = Joy.getReferencesByTag(topdata, variableType);
-			var varnames = references.map(function(reference){
-				return reference.data.value;
-			});
-			var highestCount=0;
-			for(var i=0; i<varnames.length; i++){
-
-				var num;
-				var varname = varnames[i];
-				
-				if(varname=="thing") num=1; // at least 1
-				
-				var match = varname.match(/thing\s(\d+)/);
-				if(match) num = parseInt(match[1]); // or more
-					
-				if(highestCount<num) highestCount=num;
-
-			}
-			if(highestCount==0){
-				return "thing";
-			}else{
-				return "thing "+(highestCount+1);
-			}
-		}
-
-		function _showVariableChooser(){
-
-			// First option is a "+new"
-			var options = [];
-			options.push({
-				label: "+new",
-				value: "NEW"
-			});
-
-			// Get all references that are of this type
-			var refs = Joy.getReferencesByTag(topdata, variableType);
-			for(var i=0;i<refs.length;i++){
-				var ref = refs[i];
-				if(ref.id==self.reference.id) continue; // don't show SELF
-				options.push({
-					label: "["+ref.data.value+"]",
-					value: ref.id
-				});
-			}
-
-			// Show all possible variables to link this to!
-			Joy.modal.Chooser({
-				source: self.dom,
-				options: options,
-				onchange: function(newRefID){
-
-					// Make a new reference?
-					if(newRefID=="NEW"){
-						_createNewReference();
-					}else{
-						data.refID = newRefID;
-					}
-
-					_updateReference(); // change the reference!
-					_createStringWidget(); // new string widget!
-					self.update(); // you oughta know!
-
-				}
-			});
-
-		}
-
-	},
-	get: function(topdata, data, target){
-		var reference = Joy.getReferenceById(topdata, data.refID);
-		return reference.data.value;
-	}
-});
-****************/

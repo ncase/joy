@@ -2,12 +2,12 @@
 // LOGIC ACTORS /////////////////////////
 /////////////////////////////////////////
 
-Joy.module("logic", function(){
+Joy.module("instructions", function(){
 
 	Joy.add({
 		name: "Repeat the following...",
-		type: "logic/repeat",
-		tags: ["logic", "action"],
+		type: "instructions/repeat",
+		tags: ["instructions", "action"],
 		init: "Repeat the following {id:'count', type:'number', min:1, placeholder:3} times: "+
 			  "{id:'actions', type:'actions', resetVariables:false}",
 		onact: function(my){
@@ -28,8 +28,8 @@ Joy.module("logic", function(){
 
 	Joy.add({
 		name: "// Note",
-		type: "logic/comment",
-		tags: ["logic", "action"],
+		type: "instructions/comment",
+		tags: ["instructions", "action"],
 		initWidget: function(self){
 
 			// DOM

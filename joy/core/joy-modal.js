@@ -125,20 +125,17 @@ modal.Chooser = function(config){
 	self.populate = function(){
 
 		// Create categories, if any!
-		var _anyCategories = false;
 		for(var i=0; i<config.options.length; i++){
 			var option = config.options[i];
 			var category = option.category;
 			if(category){
 				// Category doesn't exist yet... make it!
-				if(!self.categories[category]){
-					_makeCategory(category);
-					_anyCategories = true;
-				}
+				if(!self.categories[category]) _makeCategory(category);
+			}else{
+				// Make a placholder if not alredy!
+				if(!self.categories[_placeholder_]) _makeCategory(_placeholder_);
 			}
 		}
-		// If none, make a placeholder one!
-		if(!_anyCategories) _makeCategory(_placeholder_);
 
 		// Create options
 		for(var i=0; i<config.options.length; i++){
@@ -476,6 +473,9 @@ modal.Color = function(config){
 	// UPDATE SOURCE
 	var _updateSource = function(){
 		var newValue = [self.h, self.s, self.v];
+		newValue[0] = parseFloat(newValue[0].toFixed(0));
+		newValue[1] = parseFloat(newValue[1].toFixed(2));
+		newValue[2] = parseFloat(newValue[2].toFixed(2));
 		config.onchange(newValue);
 	};
 

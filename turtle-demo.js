@@ -15,7 +15,7 @@ window.onload = function(){
 		data: data,
 		allowPreview: true,
 		container: "#editor",
-		modules: ["turtle", "logic", "math"],
+		modules: ["turtle", "instructions", "math"],
 
 		onupdate: function(my){
 			turtle.start();

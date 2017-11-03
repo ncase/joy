@@ -34,6 +34,9 @@ function Joy(options){
 	// I'm a Joy.Actor!
 	Joy.Actor.call(self, options);
 
+	// MASTER: Initialize References
+	Joy.initReferences(self);
+
 	// MASTER OPTION: Allow Preview?
 	if(self.allowPreview==undefined) self.allowPreview = false;
 	self.activelyEditingActor = null;
@@ -126,8 +129,25 @@ Joy.Actor = function(options, parent, data){
 		if(self.parent) self.parent.update();
 	};
 
-	// Kill
-	self.kill = self.kill || function(){}; // to implement
+	// Kill!
+	self.onkill = self.onkill || function(){};
+	self.kill = function(){
+
+		// Remove my DOM, if any.
+		if(self.dom && self.dom.parentNode) self.dom.parentNode.removeChild(self.dom);
+
+		// Un-watch my data
+		unwatch(self.data, _onDataChange);
+
+		// Kill all children, too
+		while(self.children.length>0){
+			self.removeChild(self.children[0]);
+		}
+
+		// On Kill?
+		self.onkill(self);
+
+	};
 
 	/////////////////////////////////
 	// ACTOR <-> DATA: //////////////
@@ -172,10 +192,31 @@ Joy.Actor = function(options, parent, data){
 	self.getData = function(dataID){
 		return self.data[dataID];
 	};
-	self.setData = function(dataID, newValue){
-		self.data[dataID] = newValue;
-		self.update();
+	self.setData = function(dataID, newValue, noUpdate){
+		_myEditLock = true; // lock!
+		if(newValue===undefined){
+			delete self.data[dataID]; // DELETE the thing!
+		}else{
+			self.data[dataID] = newValue;
+		}
+		setTimeout(function(){ _myEditLock=false; },1); // some threading issue, i dunno
+		if(!noUpdate) self.update();
 	};
+	self.switchData = function(newData){
+		unwatch(self.data, _onDataChange); // unwatch old data
+		self.data = newData;
+		watch(self.data, _onDataChange); // watch new data
+		if(self.onDataChange) self.onDataChange(newData);
+	};
+
+	// WATCH DATA
+	var _myEditLock = false;
+	var _onDataChange = function(attr, op, newValue, oldValue){	
+		if(_myEditLock) return; // prevent double update
+		if(self.onDataChange) self.onDataChange();
+	};
+	watch(self.data, _onDataChange);
+
 
 	/////////////////////////////////
 	// ACTOR <-> EDITOR: "WIDGETS" //
@@ -299,7 +340,18 @@ Joy.getActorsByTag = function(tag){
 };
 
 // Modify Templates
-Joy.mod = function(type, callback){
+Joy.modify = function(){
+
+	// Arguments: (type, callback) or (type, rename, callback)
+	var type, rename, callback;
+	if(arguments.length==2){
+		type = arguments[0];
+		callback = arguments[1];
+	}else{
+		type = arguments[0];
+		rename = arguments[1];
+		callback = arguments[2];
+	}
 
 	// New Template inherits from old...
 	var newTemplate = {};
@@ -310,8 +362,12 @@ Joy.mod = function(type, callback){
 	var modifications = callback(_old);
 	_configure(newTemplate, modifications);
 
-	// Then, remove old one from array
-	_removeFromArray(Joy.templates, _old);
+	// Then, either RENAME or REMOVE old actor template!
+	if(rename){
+		_old.type = rename;
+	}else{
+		_removeFromArray(Joy.templates, _old);
+	}
 
 	// And add the new one!
 	Joy.add(newTemplate);
@@ -410,6 +466,102 @@ Joy.loadModule = function(id){
 	if(!module) throw Error("There's no module called '"+id+"'!");
 	module();
 };
+
+
+/******************************
+
+GETTING & SETTING REFERENCES FROM TOP.DATA
+
+This is so you can sync variables, functions, strings, object names, etc.
+
+Each reference should have: Unique ID, Tag, Data, Watchers
+// (when Watchers[].length==0, delete that reference. Garbage day)
+
+******************************/
+
+Joy.initReferences = function(actor){
+	
+	// Create if not already
+	var topdata = actor.top.data;
+	if(!topdata._references) topdata._references={};
+
+	// Zero out all connected, it's a brand new world.
+	for(var id in topdata._references){
+		var ref = topdata._references[id];
+		ref.connected = 0;
+	}
+
+};
+
+Joy.createReference = function(actor, tags, data){
+
+	// The reference
+	var topdata = actor.top.data;
+	var reference = {
+		id: _generateUID(topdata._references),
+		tags: _forceToArray(tags),
+		data: data,
+		connected: 0 // tracks how many actors this thing actually depends on
+	};
+	topdata._references[reference.id] = reference;
+
+	// Gimme
+	return reference;
+
+};
+
+Joy.getReferenceById = function(actor, refID){
+	var topdata = actor.top.data;
+	return topdata._references[refID];
+};
+
+Joy.getReferencesByTag = function(actor, tag){
+	var topdata = actor.top.data;
+	var refs = [];
+	for(var id in topdata._references){
+		var ref = topdata._references[id];
+		if(ref.tags.indexOf(tag)>=0) refs.push(ref);
+	}
+	return refs;
+};
+
+Joy.connectReference = function(actor, refID){
+	var ref = Joy.getReferenceById(actor, refID);
+	ref.connected++;
+};
+
+Joy.disconnectReference = function(actor, refID){
+	var ref = Joy.getReferenceById(actor, refID);
+	ref.connected--;
+	if(ref.connected==0) Joy.deleteReference(actor, refID);
+};
+
+Joy.deleteReference = function(actor, refID){
+	var topdata = actor.top.data;
+	var reference = topdata._references[refID];
+	delete topdata._references[refID];
+};
+
+/*
+Joy.watchReference = function(topdata, id){
+	var reference = topdata._references[id];
+	reference._creators++;
+	return reference;
+};
+
+Joy.unwatchReference = function(topdata, id){
+
+	// The reference?
+	var reference = topdata._references[id];
+	reference._creators--;
+
+	// If no more _creators, DELETE.
+	if(reference._creators==0) Joy.deleteReference(topdata, id);
+
+	return reference;
+
+};
+*/
 
 /******************************
 

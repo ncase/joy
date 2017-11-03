@@ -29,6 +29,12 @@ var _removeFromArray = function(array, toDelete){
 	array.splice(index,1);
 	return true;
 }
+var _replaceInArray = function(array, oldElement, newElement){
+	var index = array.indexOf(oldElement);
+	if(index<0) return false;
+	array.splice(index, 1, newElement);
+	return true;
+}
 
 // Instant space
 var _nbsp = function(){
@@ -219,8 +225,8 @@ function _HSVToRGBString(h,s,v){
 	return "rgb("+rgb[0]+","+rgb[1]+","+rgb[2]+")";
 }
 // well, "random"
-var _randomColorIndex = 0;
-var _randomColorArray = [
+var _randomHSVIndex = 0;
+var _randomHSVArray = [
       [0, 0.6, 1.0],
 	 [30, 0.8, 1.0],
 	[120, 0.9, 0.9],
@@ -228,9 +234,16 @@ var _randomColorArray = [
 	[260, 0.7, 1.0],
 	[310, 0.6, 1.0]
 ];
-function _randomColor(){
-	var hsv = _randomColorArray[_randomColorIndex];
-	_randomColorIndex = (_randomColorIndex+1)%_randomColorArray.length;
-	return _HSVToRGBString(hsv[0], hsv[1], hsv[2]);
+function _randomHSV(){
+	var hsv = _randomHSVArray[_randomHSVIndex];
+	_randomHSVIndex = (_randomHSVIndex+1)%_randomHSVArray.length;
+	//return _HSVToRGBString(hsv[0], hsv[1], hsv[2]);
+	return hsv;
+}
+function _forceToRGB(color){
+	if(Array.isArray(color)){
+		color = _HSVToRGBString(color[0], color[1], color[2]); // HSV
+	}
+	return color;
 }
 
