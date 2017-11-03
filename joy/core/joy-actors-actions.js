@@ -15,6 +15,8 @@ Joy.add({
 	tags: ["ui"],
 	init: function(self){
 
+		if(self.resetVariables!==undefined) self.data.resetVariables=self.resetVariables;
+
 		// TODO: Separate out Actor code from Widget code
 		// so that this can run EVEN WITHOUT WIDGETS.
 		// Using messages, probably.

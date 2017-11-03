@@ -39,8 +39,20 @@ Joy.add({
 		if(refID){
 			Joy.connectReference(self, refID); // connect this ref
 		}else{
-			// TODO: OR... Try attaching to some latest variable of same type?
-			self._createNewReference();
+
+			// Well, first try seeing if there are any vars.
+			// If so, connect to most recently created one
+			var varReferences = Joy.getReferencesByTag(self, variableType);
+			if(varReferences.length>0){
+				var latestReference = varReferences[varReferences.length-1];
+				refID = latestReference.id;
+				self.setData("refID", refID, true); // set data
+				Joy.connectReference(self, refID); // connect this ref
+			}else{
+				// Otherwise, make a new one!
+				self._createNewReference();
+			}
+			
 		}
 
 		// Switch reference 

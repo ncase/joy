@@ -192,6 +192,7 @@ A choose-y thing
 
 Widget Options:
 {name:'direction', type:'choose', options:['left','right'], placeholder:'left'}
+// TODO... "options" gets overrided soooo UHHHHH.
 
 ****************/
 Joy.add({
@@ -223,7 +224,8 @@ Joy.add({
 			onchange: function(value){
 				data.value = value;
 				self.update(); // you oughta know!
-			}
+			},
+			styles: self.styles
 		});
 		self.dom = chooserButton.dom;
 

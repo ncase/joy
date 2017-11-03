@@ -100,26 +100,35 @@ More prefixing to avoid NAME COLLISIONS
 
 .joy-button.joy-more{
 	border: none;
-	width: 0.5em;
+    width: 10px;
     height: 1em;
     padding: 0;
     position: relative;
     top: 0.1em;
-    margin-left: 0.1em;
 }
 /* from: https://css-tricks.com/three-line-menu-navicon/ */
 .joy-button.joy-more:before{
-	content: "";
-	position: absolute;
-	left: 0;
-	top: 0.4em;
-	width: 100%;
-	height: 2px;
-	background: #bebebe;
-	border-radius:5px; 
-	box-shadow: 
-	0 4px 0 0 #bebebe,
-	0 8px 0 0 #bebebe;
+    content: "";
+    position: absolute;
+    right: 3px;
+    top: 0.24em;
+    width: 4px;
+    height: 4px;
+    background: #bebebe;
+    border-radius: 4px;
+    box-shadow: 0 6px 0 0 #bebebe, 0 12px 0 0 #bebebe;
+}
+.joy-button.joy-math{
+	border: none;
+    line-height: 1em;
+    padding: 0;
+    margin: 0 0.1em;
+    border-radius: 1000px; /* infinite roundness */
+    width: 1em;
+    text-align: center;
+}
+.joy-button.joy-math:hover{
+	background: rgba(0,0,0,0.1);
 }
 
 /***************/
@@ -149,7 +158,7 @@ textarea.joy-textbox{
 /* SCRUBBER ****/
 /***************/
 
-.joy-number{
+.joy-number > span{
 	/* prevent number & chooser separating on newline */
 	display: inline-block;
 }

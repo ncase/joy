@@ -33,14 +33,14 @@ Joy.module("math", function(){
 				if(typeof originalValue==="number"){
 					self.setData("value",undefined,true); // delete "value", no update
 					self.setData("chain",[
-						{type:"number_raw", value:originalValue},
-						{type:"choose", value:"+"}, // TEST!
-						{type:"number_raw", value:2} // TEST!
+						{type:"number_raw", value:originalValue}
 					],true); // create "chain", no update
 				}
 
-				// MAKE A NEW CHAIN ACTOR
-				self._makeNewChainActor = function(chainItem){
+				// MAKE A NEW CHAIN ACTOR *AND DATA(?)*
+				self._makeNewChainActor = function(chainItem, atIndex){
+
+					// Make it
 					var chainActor;
 					var type = chainItem.type;
 					switch(type){
@@ -66,35 +66,66 @@ Joy.module("math", function(){
 									{ label:"-", value:"-" }, 
 									{ label:"&times;", value:"*" },
 									{ label:"&divide;", value:"/" }
-								]
+								],
+								styles: ["joy-math"]
 							}, chainItem);
 							break;
 
 					}
+
+					// Add or splice to Chain Actors array! *AND THE DATA*
+					var chain = self.getData("chain");
+					if(atIndex!==undefined){
+						self.chainActors.splice(atIndex, 0, chainActor);
+						chain.splice(atIndex, 0, chainItem);
+					}else{
+						self.chainActors.push(chainActor);
+						chain.push(chainItem);
+					}
+
+					// Return
 					return chainActor;
+
 				}
 
 				// Create an actor for each element in the chain
 				self.chainActors = []; // keep a chain parallel to children. this one's in ORDER.
-				var chain = self.getData("chain");
+				var realChain = self.getData("chain");
+				var chain = _clone(realChain);
+				realChain.splice(0, realChain.length); // empty out realChain
 				for(var i=0; i<chain.length; i++){
-					var chainActor = self._makeNewChainActor(chain[i]);
-					self.chainActors.push(chainActor);
+					self._makeNewChainActor(chain[i]);
 				}
 
 				// REPLACE A CHAIN ACTOR *AND DATA*
-				self._replaceChainActor = function(oldChainActor, newChainActor){
+				self._replaceChainActor = function(oldChainActor, newItem){
 
-					// Get index of old actor & replace actor
-					var oldIndex = self.chainActors.indexOf(oldChainActor);
-					_replaceInArray(self.chainActors, oldChainActor, newChainActor);
-					
-					// now, replace THE DATA in the chain!
-					var chain = self.getData("chain");
-					chain[oldIndex] = newChainActor.data;
+					// Delete old actor, and add new actor where it was
+					var oldIndex = self._deleteChainActor(oldChainActor);
+					var newChainActor = self._makeNewChainActor(newItem, oldIndex);
 
 					// update manually!
 					self.update();
+
+					// Return
+					return newChainActor;
+
+				};
+
+				// DELETE A CHAIN ACTOR *AND DATA*
+				self._deleteChainActor = function(chainActor){
+
+					// Delete actor
+					var oldIndex = self.chainActors.indexOf(chainActor);
+					_removeFromArray(self.chainActors, chainActor);
+					self.removeChild(chainActor);
+
+					// and data!
+					var chain = self.getData("chain");
+					chain.splice(oldIndex, 1);
+
+ 					// so can re-use index
+					return oldIndex;
 
 				};
 
@@ -103,6 +134,7 @@ Joy.module("math", function(){
 
 				// Container!
 				self.dom = document.createElement("span");
+				self.dom.className = "joy-number";
 
 				// Show Chooser!
 				var _showChooser = function(chainActor){
@@ -139,61 +171,191 @@ Joy.module("math", function(){
 					});
 
 					// Show all these dang options!
+					if(options.length>0){
+						Joy.modal.Chooser({
+							source: chainActor.dom,
+							options: options,
+							onchange: function(newItem){
+								// REPLACE CHAIN ACTOR & ENTRY
+								var newChainActor = self._replaceChainActor(chainActor, newItem);
+								self._replaceChainEntry(chainActor, newChainActor);
+							}
+						});
+					}
+
+				};
+
+				// THE WAY TO ORGANIZE THIS: ENTRIES that have DOM *and* ACTOR
+				self._chainEntries = [];
+
+				// MAKE CHAIN ENTRY
+				self._makeChainEntry = function(chainActor, atIndex){
+
+					// Widget
+					var widget = document.createElement("span");
+					chainActor.createWidget();
+					widget.appendChild(chainActor.dom);
+
+					// Widget chooser, if NOT an operand
+					if(chainActor.type!="choose"){
+						var entry;
+						var moreButton = new Joy.ui.Button({
+							onclick: function(){
+								_showChainOptions(entry);
+							},
+							styles: ["joy-more"]
+						});
+						widget.appendChild(moreButton.dom);
+					}
+
+					// Place in widget
+					if(atIndex!==undefined){
+						if(atIndex < self.dom.childNodes.length){
+							// replacing NOT at last child...
+							var beforeThisWidget = self.dom.childNodes[atIndex];
+							self.dom.insertBefore(widget, beforeThisWidget);
+						}else{
+							// Otherwise just append
+							self.dom.appendChild(widget);
+						}
+					}else{
+						self.dom.appendChild(widget);
+					}
+
+					// If it's NOT an operand, clicking it reveals options
+					if(chainActor.type!="choose"){
+						(function(ca){
+							ca.dom.addEventListener("click", function(){
+								_showChooser(ca);
+								// TODO: wasDragging
+							});
+						})(chainActor);
+					}
+
+					// Entry
+					entry = {
+						widget: widget,
+						actor: chainActor
+					};
+					if(atIndex!==undefined){
+						self._chainEntries.splice(atIndex, 0, entry);
+					}else{
+						self._chainEntries.push(entry);
+					}
+
+				};
+
+				// DELETE CHAIN ENTRY
+				self._deleteChainEntry = function(chainActor){
+
+					// Get index (so can return later)
+					var entry = self._chainEntries.find(function(entry){
+						return entry.actor == chainActor;
+					});
+					var index = self._chainEntries.indexOf(entry);
+
+					// Delete widget & entry (actor's already been deleted)
+					var widget = entry.widget;
+					self.dom.removeChild(widget);
+					_removeFromArray(self._chainEntries, entry);
+
+					// Index?
+					return index;
+
+				};
+
+				// REPLACE CHAIN ENTRY
+				self._replaceChainEntry = function(oldChainActor, newChainActor){
+					var oldIndex = self._deleteChainEntry(oldChainActor);					
+					self._makeChainEntry(newChainActor, oldIndex);
+				};
+
+				// SHOW CHAIN OPTIONS
+				var _showChainOptions = function(entry){
+
+					// Possible operands
+					var currentLabel = entry.widget.innerText;
+					var options = [
+						{label:currentLabel+" + 2", value:"+"},
+						{label:currentLabel+" - 2", value:"-"},
+						{label:currentLabel+" &times; 2", value:"*"},
+						{label:currentLabel+" &divide; 2", value:"/"}
+					];
+
+					// To delete... which operand?
+					var elementIndex = self._chainEntries.indexOf(entry);
+					if(self._chainEntries.length>1){ // can't delete if just one
+						
+						// The operand...
+						var operandIndex;
+						if(elementIndex==0) operandIndex=elementIndex+1; // first
+						else operandIndex=elementIndex-1; // not
+
+						// Label
+						var label;
+						var operandLabel = self._chainEntries[operandIndex].widget.innerText;
+						if(elementIndex==0) label = currentLabel+" "+operandLabel; // first
+						else label = operandLabel+" "+currentLabel; // not
+
+						// Indices to delete
+						var indicesToDelete = [elementIndex, operandIndex].sort(); // increasing order
+
+						// Push option!
+						options.push({
+							category: "meta",
+							label: '(delete “'+label+'”)',
+							value: indicesToDelete
+						});
+
+					}
+
+					// Choose options!
 					Joy.modal.Chooser({
-						source: chainActor.dom,
+						source: entry.widget,
 						options: options,
-						onchange: function(newValue){
+						onchange: function(operand){
 
-							console.log(newValue);
-							
-							// MAKE NEW CHAIN ACTOR.
-							var newChainActor = self._makeNewChainActor(newValue);
+							// It's an operand...
+							if(typeof operand==="string"){
 
-							// REPLACE CHAIN ACTOR
-							self._replaceChainActor(chainActor, newChainActor);
+								// Get index of the actor...
+								var index = self._chainEntries.indexOf(entry);
 
-							// MAKE NEW CHAIN WIDGET
-							self._makeChainWidget(newChainActor);
+								// Make the OPERAND actor(+data) & entry
+								index++;
+								var operandActor = self._makeNewChainActor({type:"choose", value:operand}, index);
+								self._makeChainEntry(operandActor, index);
 
-							// REPLACE CHAIN WIDGET
-							self._replaceChainWidget(chainActor, newChainActor);
+								// Make the NUMBER actor(+data) & entry (just the number 2, why hot)
+								index++;
+								var numberActor = self._makeNewChainActor({type:"number_raw", value:2}, index);
+								self._makeChainEntry(numberActor, index);
+
+							}else{
+
+								// Otherwise, DELETE ACTOR & ENTRY!
+								var indices = operand;
+								for(var i=indices.length-1; i>=0; i--){ // flip around coz DELETING
+									var indexToDelete = indices[i];
+									var actorToDelete = self._chainEntries[indexToDelete].actor;
+									self._deleteChainActor(actorToDelete);
+									self._deleteChainEntry(actorToDelete);
+								}
+
+							}
+
+							// Update!
+							self.update();
 
 						}
 					});
 
 				};
 
-				// Chain DOMs
-				var chainDOMs = [];
-
-				// CREATE CHAIN WIDGET
-				self._makeChainWidget = function(chainActor){
-					chainActor.createWidget();
-				};
-
-				// REPLACE CHAIN WIDGET
-				self._replaceChainWidget = function(oldChainActor, newChainActor){
-					oldChainActor.dom.parentNode.replaceChild(newChainActor.dom, oldChainActor.dom);
-				};
-
-				// For each chain actor, put in that widget
+				// For each chain actor, put in that entry
 				for(var i=0; i<self.chainActors.length; i++){
-					
-					// Put in the chain actor!
 					var chainActor = self.chainActors[i];
-					self._makeChainWidget(chainActor);
-					if(i>0) self.dom.appendChild(_nbsp()); // space 'em
-					self.dom.appendChild(chainActor.dom);
-
-					// Also, if it's an element, clicking it reveals options
-					if(i%2==0){
-						(function(ca){
-							ca.dom.onclick = function(){
-								_showChooser(ca);
-							};
-						})(chainActor);
-					}
-
+					self._makeChainEntry(chainActor);
 				}
 
 			},
@@ -247,7 +409,7 @@ Joy.module("math", function(){
 	****************/
 	Joy.add({
 		type: "math/set",
-		name: "Set [thing] to [number]",
+		name: "Set [number]",
 		tags: ["math", "action"],
 		init: "Set {id:'varname', type:'variableName', variableType:'number'} to {id:'value', type:'number'}",
 		onact: function(my){
@@ -262,202 +424,39 @@ Joy.module("math", function(){
 	Do math on some variable
 
 	****************/
-
-});
-
-/****************
-
-NUMBER WIDGET. Can switch out between scrubbable & variable!
-(same config as scrubbable)
-
-****************/
-/*
-Joy.add({
-	type: "number",
-	tags: ["ui"],
-	initWidget: function(self){
-
-		var data = self.data;
-		var o = self.options;
-
-		// DOM:
-		var dom = document.createElement("span");
-		dom.className = "joy-number";
-		self.dom = dom;
-
-		// Replace Scrubber/Variable Widget!
-		self.currentWidget = null;
-		var _replace = function(widgetOptions, widgetData){
-			/
-			var newWidget = new Widget(widgetOptions, widgetData, self);
-			if(!self.currentWidget){
-				dom.appendChild(newWidget.dom);
-			}else{
-				self.replaceWidget(self.currentWidget, newWidget);
-			}
-			var newActor = self.addChild(widgetOptions, widgetData);
-			var newWidget = newActor.createWidget();
-			dom.appendChild(newWidget);
-			self.currentWidget = newWidget;
-		};
-
-		// Create Scrubber
-		var _showScrubber = function(rawNumber){
-			data.value = rawNumber;
-			_replace({
-				name:'value', type:'scrubber',
-				min: o.min,
-				max: o.max,
-				step: o.step
-			}, data);
-
-			// HACK: Preview on hover!
-			/*self.preview(self.currentWidget, function(data, previewData, t){
-				previewData.value = data.value + t*3;
-			});/
-
-		};
-
-		// Create Variable
-		var _showVariable = function(refID){
-			data.value = {
-				type: "variableName",
-				refID: refID
-			};
-			_replace({
-				name:'value', type:'variableName',
-				variableType:'number',
-				noChooser:true
-			}, data.value);
-		};
-
-		// If it's a number, show raw. Otherwise it's a variable object.
-		switch(typeof data.value){
-			case "number":
-				_showScrubber(data.value);
-				break;
-			case "object":
-				_showVariable(data.value.refID);
-				break;
-		}
-
-		// Moar Button
-		var defaultNumber = o.placeholder;
-		var moreButton = new Joy.ui.Button({
-			onclick: function(){
-
-				// Options
-				var options = [];
-				var topdata = self.top.data;
-
-				// First option:
-				if(self.currentWidget.type=="scrubber"){
-					defaultNumber = self.currentWidget.data.value;
-				}
-				options.push({
-					label: defaultNumber,
-					value: {
-						choiceType: "raw",
-						choiceValue: defaultNumber
-					}
-				});
-
-				// Get all references to numbers
-				var refs = Joy.getReferencesByTag(topdata, "number");
-				refs.forEach(function(ref){
-					options.push({
-						label: "["+ref.data.value+"]",
-						value: {
-							choiceType: "variable",
-							choiceValue: ref.id
-						}
-					});
-				});
-
-				// Show all possible variables to link this to!
-				Joy.modal.Chooser({
-					source: self.dom,
-					options: options,
-					onchange: function(choice){
-						switch(choice.choiceType){
-							case "raw":
-								_showScrubber(choice.choiceValue);
-								break;
-							case "variable":
-								_showVariable(choice.choiceValue);
-								break;
-						}
-						self.update(); // you oughta know!
-					}
-				});
-
-			},
-			styles: ["joy-more"]
-		});
-		dom.appendChild(moreButton.dom);
-
-	},
-	onget: function(my){
-		switch(typeof my.data.value){
-			case "number": // Number: just give it
-				return my.data.value;
-				break;
-			case "object": // Variable: actually parse it on target!
-				var vars = target._vars;
-				var varname = Joy.get(topdata, data.value);
-				return vars[varname];
-				break;
-		}
-	},
-	placeholder: {
-		value: 3
-	}
-});
-
-Joy.add({
-	name: "Set [thing] to [number]",
-	type: "math/var",
-	tags: ["numbers", "action"],
-	widget: "Set {data:'varname', type:'variableName', variableType:'number'} to {data:'value', type:'number'}",
-	act: function(topdata, data, target){
-		var vars = target._vars;
-		var varname = data.varname; // it's just a synchronized string
-		vars[varname] = data.value; // Set the variable
-	}
-});
-
-Joy.add({
+	Joy.add({
 	
-	name: "Do math to [thing]",
-	type: "math/var/op",
-	tags: ["numbers", "action"],
+		name: "Do math to [number]",
+		type: "math/operation",
+		tags: ["math", "action"],
 
-	widget: JSON.stringify({
-		data:'operation', type:'choose',
-		placeholder: "+",
-		options:[
-			{ label:"+ Increase", value:"+" },
-			{ label:"- Decrease", value:"-" },
-			{ label:"&times; Multiply", value:"*" },
-			{ label:"&divide; Divide", value:"/" }
-		]
-	})+" {data:'varname', type:'variableName', variableType:'number'}"
-	+" by {data:'value', type:'number'}",
+		init: JSON.stringify({
+			id:'operation', type:'choose',
+			placeholder: "+",
+			options:[
+				{ label:"+ Increase", value:"+" },
+				{ label:"- Decrease", value:"-" },
+				{ label:"&times; Multiply", value:"*" },
+				{ label:"&divide; Divide", value:"/" }
+			]
+		})+" {id:'varname', type:'variableName', variableType:'number'}"
+		+" by {id:'value', type:'number'}",
 
-	act: function(topdata, data, target){
+		onact: function(my){
 
-		var vars = target._vars;
-		var varname = data.varname;
-		if(vars[varname]===undefined) vars[varname]=0; // Set to 0, if nothing's there.
+			var vars = my.target._variables;
+			var varname = my.data.varname;
+			if(vars[varname]===undefined) vars[varname]=0; // Set to 0, if nothing's there.
 
-		switch(data.operation){
-			case "+": vars[varname] += data.value; break;
-			case "-": vars[varname] -= data.value; break;
-			case "*": vars[varname] *= data.value; break;
-			case "/": vars[varname] /= data.value; break;
+			switch(my.data.operation){
+				case "+": vars[varname] += my.data.value; break;
+				case "-": vars[varname] -= my.data.value; break;
+				case "*": vars[varname] *= my.data.value; break;
+				case "/": vars[varname] /= my.data.value; break;
+			}
+
 		}
 
-	}
+	});
 
 });
-*/

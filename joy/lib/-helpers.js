@@ -29,12 +29,6 @@ var _removeFromArray = function(array, toDelete){
 	array.splice(index,1);
 	return true;
 }
-var _replaceInArray = function(array, oldElement, newElement){
-	var index = array.indexOf(oldElement);
-	if(index<0) return false;
-	array.splice(index, 1, newElement);
-	return true;
-}
 
 // Instant space
 var _nbsp = function(){
@@ -152,9 +146,12 @@ var _blurOnEnter = function(input){
 
 // Find a unique ID within an object
 var _generateUID = function(obj){
+	var num = 0;
 	var id;
 	do{
-		id = Math.floor(Math.random()*1000000)+""; // a MILLION random IDs, hopefully don't go over
+		//id = Math.floor(Math.random()*1000000)+""; // a MILLION random IDs, hopefully don't go over
+		id = "id"+num; // linear time but who cares
+		num++;
 	}while(obj[id]);
 	return id;
 };
