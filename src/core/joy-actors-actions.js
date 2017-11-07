@@ -17,6 +17,7 @@ Joy.add({
 
 		if(self.resetVariables!==undefined) self.data.resetVariables=self.resetVariables;
 
+		// TODO: ACTUALLY REFACTOR
 		// TODO: Separate out Actor code from Widget code
 		// so that this can run EVEN WITHOUT WIDGETS.
 		// Using messages, probably.
@@ -176,12 +177,12 @@ Joy.add({
 			entry.actionData = actionData;
 
 			// PREVIEW ON HOVER
-			// Also tell the action "PREVIEW_PARAM": how far in the action to go?
+			// Also tell the action "_PREVIEW": how far in the action to go?
 			var _calculatePreviewParam = function(event){
 				var param = event.offsetY / bullet.dom.getBoundingClientRect().height;
 				if(param<0) param=0;
 				if(param>1) param=1;
-				_previewAction.PREVIEW_PARAM = param;
+				_previewAction._PREVIEW = param;
 				self.update();
 			};
 			var _previewAction;

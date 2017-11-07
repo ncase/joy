@@ -44,7 +44,7 @@ Joy.module("turtle", function(){
 
 			// Previewing? How much to preview?
 			var param = 1;
-			if(my.data.PREVIEW_PARAM!==undefined) param=my.data.PREVIEW_PARAM;
+			if(my.data._PREVIEW!==undefined) param=my.data._PREVIEW;
 
 			// Do it!
 			my.target.forward(my.data.steps*param);

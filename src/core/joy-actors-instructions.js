@@ -14,7 +14,7 @@ Joy.module("instructions", function(){
 			
 			// Previewing? How much to preview?
 			var param = 1;
-			if(my.data.PREVIEW_PARAM!==undefined) param=my.data.PREVIEW_PARAM;
+			if(my.data._PREVIEW!==undefined) param=my.data._PREVIEW;
 
 			// Loop through it... (as far as preview shows, anyway)
 			var loops = Math.floor(my.data.count*param);
@@ -27,7 +27,7 @@ Joy.module("instructions", function(){
 	});
 
 	Joy.add({
-		name: "// Note",
+		name: "// Comment",
 		type: "instructions/comment",
 		tags: ["instructions", "action"],
 		initWidget: function(self){

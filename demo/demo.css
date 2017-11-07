@@ -1,0 +1,38 @@
+body{
+	margin: 0;
+	font-size: 22px;
+	font-weight: 100;
+	line-height: 1.7em;
+	font-family: Helvetica, Arial, sans-serif;
+}
+pre{
+	font-size: 15px;
+	line-height: 1.2em;
+}
+
+#container{
+	width: 1000px;
+	height: 500px;
+	background: #fff;
+	border: 2px solid #ddd;
+}
+#player{
+	width:500px;
+	height:500px;
+	float:left;
+	position: relative;
+}
+#editor{
+	width:500px;
+	height:500px;
+	float:left;
+	background: #eee;
+
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+#editor hr{
+	border: none;
+	border-bottom: 2px dashed #ccc;
+	margin: 1.5em 0;
+}

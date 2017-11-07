@@ -1,0 +1,53 @@
+<!doctype>
+<html>
+<head>
+	<title>THE JOY OF TURTLE</title>
+	<link rel="stylesheet" href="../demo.css">
+	<link rel="stylesheet" href="../../src/css/joy.css">
+	<style>
+	@font-face{
+		font-family: 'FuturaHandwritten';
+		font-style: normal;
+		src: url('FuturaHandwritten.ttf') format('truetype');
+	}
+	body{
+		font-family: 'FuturaHandwritten';
+	}
+	.cursor-grab{
+		cursor: -webkit-grab;
+		cursor: -moz-grab;
+		cursor: -ms-grab;
+		cursor: grab;
+	}
+	.cursor-grabbing{
+		cursor: -webkit-grabbing;
+		cursor: -moz-grabbing;
+		cursor: -ms-grabbing;
+		cursor: grabbing;
+	}
+
+	</style>
+</head>
+<body>
+	<div id="container">
+		<div id="player"></div>
+		<div id="editor"></div>
+	</div>
+</body>
+</html>
+
+<script src="../../src/lib/-helpers.js"></script>
+<script src="../../src/lib/watch.min.js"></script>
+<script src="../../src/lib/lz-string.min.js"></script>
+
+<script src="../../src/core/Joy.js"></script>
+<script src="../../src/core/joy-ui.js"></script>
+<script src="../../src/core/joy-modal.js"></script>
+<script src="../../src/core/joy-actors-ui.js"></script>
+<script src="../../src/core/joy-actors-actions.js"></script>
+<script src="../../src/core/joy-actors-instructions.js"></script>
+<script src="../../src/core/joy-actors-vars.js"></script>
+<script src="../../src/core/joy-actors-math.js"></script>
+
+<script src="Turtle.js"></script>
+<script src="turtle-demo.js"></script>

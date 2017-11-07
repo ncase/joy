@@ -1,0 +1,48 @@
+<!doctype>
+<html>
+<head>
+	<title>NON-LINEAR</title>
+	<link rel="stylesheet" href="../demo.css">
+	<link rel="stylesheet" href="../../src/css/joy.css">
+</head>
+<body>
+	<div id="container">
+		<div id="player"></div>
+		<div id="editor"></div>
+	</div>
+</body>
+</html>
+
+<script src="../../src/lib/-helpers.js"></script>
+<script src="../../src/lib/watch.min.js"></script>
+<script src="../../src/lib/lz-string.min.js"></script>
+
+<script src="../../src/core/Joy.js"></script>
+<script src="../../src/core/joy-ui.js"></script>
+<script src="../../src/core/joy-modal.js"></script>
+<script src="../../src/core/joy-actors-ui.js"></script>
+<script src="../../src/core/joy-actors-actions.js"></script>
+<script src="../../src/core/joy-actors-instructions.js"></script>
+<script src="../../src/core/joy-actors-vars.js"></script>
+<script src="../../src/core/joy-actors-math.js"></script>
+
+<!-- load the d3.js library -->    
+<style> /* set the CSS */
+#player{
+	font-size: 12px;
+}
+path { 
+    stroke: steelblue;
+    stroke-width: 2;
+    fill: none;
+}
+.axis path,
+.axis line {
+    fill: none;
+    stroke: grey;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+</style>
+<script src="d3.v4.min.js"></script>
+<script src="nonlinear-demo.js"></script>

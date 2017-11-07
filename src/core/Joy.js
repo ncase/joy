@@ -125,7 +125,7 @@ Joy.Actor = function(options, parent, data){
 
 	// Update
 	self.update = function(){
-		if(self.onupdate) self.onupdate(self);
+		if(self.onupdate) self.onupdate(self); // TODO: make consistent with .act()
 		if(self.parent) self.parent.update();
 	};
 
