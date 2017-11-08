@@ -12,16 +12,38 @@ window.onload = function(){
 		data: Joy.loadFromURL(),
 		allowPreview: true,
 		container: "#editor",
-		modules: ["math", "instructions"],
+		modules: ["graph", "math", "instructions"],
 
 		onupdate: function(my){
 
-			var timeseries = [];
+			// Log, as an array of time series, ALL the variables.
+			var obj = {};
+			var lines = [];
 			var _log = function(time){
-				timeseries.push({
-					time: time,
-					value: obj._variables.thing
-				});
+				var things = obj._variables;
+				var colors = obj._colors || {};
+				for(var thingName in things){
+
+					// No line yet? Make one!
+					var line = lines.find(function(line){
+						return line.name==thingName;
+					});
+					if(!line){
+						line = {
+							name: thingName,
+							color: colors[thingName],
+							series: []
+						};
+						lines.push(line);
+					}
+
+					// Push the value to the line's timeseries
+					line.series.push({
+						time: time,
+						value: things[thingName]
+					});
+
+				}
 			};
 
 			// Start
@@ -36,17 +58,45 @@ window.onload = function(){
 				_log(i+1);
 			}
 
-			_updateGraph(timeseries);
+			// Update the graph!
+			_updateGraph({
+				iterations: iterations,
+				lines: lines
+			});
 
 		}
 	});	
 
 };
 
+Joy.module("graph", function(){
+
+	Joy.add({
+		name: "Graph [number]",
+		type: "graph/number",
+		tags: ["graph", "action"],
+		init: "Graph {id:'varname', type:'variableName', variableType:'number'} as {id:'color', type:'color'}, "+
+			  "and start at {id:'value', type:'number'}",
+		onact: function(my){
+
+			// COLOR
+			my.target._colors = my.target._colors || {}; // colors object, if none!
+			my.target._colors[my.data.varname] = my.data.color; // store color
+
+			// SET VAR
+			var _variables = my.target._variables;
+			var varname = my.data.varname; // it's just a synchronized string
+			_variables[varname] = my.data.value; // Set the variable
+
+		}
+	});
+
+});
+
 /////////////////////////
 
 // set the dimensions and margins of the graph
-var margin = {top:50, right:50, bottom:50, left:50},
+var margin = {top:50, right:75, bottom:50, left:50},
     width = 500 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
@@ -54,45 +104,68 @@ var margin = {top:50, right:50, bottom:50, left:50},
 var x = d3.scaleLinear().range([0, width]);
 var y = d3.scaleLinear().range([height, 0]);
 
-// define the line
-var valueline = d3.line()
-    .x(function(d){ return x(d.time); })
-    .y(function(d){ return y(d.value); });
-
-// append the svg object to the body of the page
-// appends a 'group' element to 'svg'
-// moves the 'group' element to the top left margin
-var svg = d3.select("#player").append("svg")
+// Appends a chart
+var chart = d3.select("#player").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
     .attr("transform", "translate("+margin.left+","+margin.top+")");
 
 // Append the path, xAxis, and yAxis.
-var path = svg.append("path");
-var xAxis = svg.append("g").attr("class", "x axis");
-var yAxis = svg.append("g").attr("class", "y axis");
+var lineContainer = chart.append("g");
+var xAxis = chart.append("g").attr("class", "x axis");
+var yAxis = chart.append("g").attr("class", "y axis");
 
 // ON UPDATE
 function _updateGraph(data){
 
-	// format the data
-	data.forEach(function(d){
-		d.time = +d.time;
-		d.value = +d.value;
-	});
+	var iterations = data.iterations;
+	var lines = data.lines.reverse(); // because first to graph should stay on top!!
 
-	// Scale the range of the data
-	x.domain(d3.extent(data, function(d){ return d.time; }));
+	// Get domain of data
+	x.domain([0, iterations]);
+	var min = d3.min(lines, function(line){
+		return d3.min(line.series, function(d){return d.value;});
+	});
+	var max = d3.max(lines, function(line){
+		return d3.max(line.series, function(d){return d.value;});
+	});
 	y.domain([
-		Math.min(0, d3.min(data, function(d){ return d.value; })), // 0 or lower...
-		d3.max(data, function(d){ return d.value; })+3 // max value, plus 3
+		(min<0) ? min-1 : 0,
+		(max>=0) ? max+1 : 0
 	]);
 
-	// Set the valueline path.
-	path.data([data])
-	  .attr("class", "line")
-	  .attr("d", valueline);
+	// path line getter
+	var pathline = d3.line()
+	    .x(function(d){ return x(d.time); })
+	    .y(function(d){ return y(d.value); });
+
+	// REJOIN DATA EACH TIME.
+	var update = lineContainer.selectAll("g").data(lines);
+	var enter = update.enter().append("g");
+		enter.attr("class", "line");
+		enter.append("path");
+		enter.append("text");
+	var exit = update.exit().remove();
+	var merge = update.merge(enter);
+	merge.select("path")
+		.style("stroke", function(d){ return d.color || ""; })
+		.attr("d", function(d){
+			return pathline(d.series);
+		})
+		.attr("class", function(d){ return d.color?"":"small"; });
+	merge.select("text")
+		.attr("transform", function(d){
+			var last = d.series[d.series.length-1];
+			var lastY = last.value;
+			return "translate(" + x(last.time) + "," + y(last.value) + ")";
+		})
+		.attr("x", 3)
+		.attr("dy", "0.35em")
+		.style("fill", function(d){ return d.color || ""; })
+		.text(function(d){
+			return d.name;
+		});
 
 	// Set the X Axis
 	xAxis.attr("transform", "translate(0,"+height+")")

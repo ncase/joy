@@ -49,7 +49,7 @@ Joy.add({
 
 			// Wiggle by 5%... as long as that's not less than 0.5, not more than 2.
 			var _amplitude = Math.abs(self.data.value*0.05);
-			if(_amplitude<0.5) _amplitude=0.5;
+			if(_amplitude<0.5) _amplitude=0.5; // TODO: WITH SIGFIG
 			if(_amplitude>2) _amplitude=2;
 			var _timer = 0;
 			_ticker = setInterval(function(){

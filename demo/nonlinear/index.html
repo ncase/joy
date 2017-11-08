@@ -31,11 +31,28 @@
 #player{
 	font-size: 12px;
 }
-path { 
-    stroke: steelblue;
-    stroke-width: 2;
-    fill: none;
+#editor{
+	font-size: 18px;
+	line-height: 1.7em;
 }
+
+g.line{}
+g.line > path{ 
+    stroke: #000;
+    stroke-width: 5;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+g.line > path.small{
+	stroke: #ccc;
+	stroke-width: 1;
+}
+g.line > text{
+	stroke: none;
+	fill: #ccc;
+}
+
 .axis path,
 .axis line {
     fill: none;
