@@ -43,7 +43,8 @@ Joy.add({
 			// Well, first try seeing if there are any vars.
 			// If so, connect to most recently created one
 			var varReferences = Joy.getReferencesByTag(self, variableType);
-			if(varReferences.length>0){
+			// CONFIG: self.startWithExisting!
+			if(self.startWithExisting && varReferences.length>0){
 				var latestReference = varReferences[varReferences.length-1];
 				refID = latestReference.id;
 				self.setData("refID", refID, true); // set data
@@ -141,6 +142,7 @@ Joy.add({
 							var oldRefID = self.getData("refID");
 							Joy.disconnectReference(self, oldRefID); // disconnect old ref
 							self._createNewReference();
+							self.update(); // update, yo
 						}else{
 							self._switchReference(newRefID);
 						}

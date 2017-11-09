@@ -333,7 +333,7 @@ Joy.getTemplateByType = function(type){
 	if(!template) throw Error("No actor template of type '"+type+"'!");
 	return template;
 };
-Joy.getActorsByTag = function(tag){
+Joy.getTemplatesByTag = function(tag){
 	return Joy.templates.filter(function(template){
 		return template.tags.indexOf(tag)>=0;
 	});

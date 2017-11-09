@@ -3,11 +3,10 @@ window.onload = function(){
 	// Joy
 	window.joy = new Joy({
 		
-		init: "Start with: {id:'start', type:'actions'}"+
-			  "For {id:'iterations', type:'number', placeholder:100} days, do: "+
-			  "{id:'iterate', type:'actions', resetVariables:false}"+
+		init: "Let's graph these numbers: {id:'start', type:'actions', onlyActions:['graph/number','instructions/comment']}"+
+			  "Do this on each of {id:'iterations', type:'number', placeholder:50} steps: "+
+			  "{id:'iterate', type:'actions', resetVariables:false, onlyActions:['math/operation','math/set','instructions/comment']}"+
 			  "<hr> {type:'save'}",
-			  // TODO: don't allow var for num of days
 
 		data: Joy.loadFromURL(),
 		allowPreview: true,
@@ -21,7 +20,7 @@ window.onload = function(){
 			var lines = [];
 			var _log = function(time){
 				var things = obj._variables;
-				var colors = obj._colors || {};
+				var graph = obj._graph || {};
 				for(var thingName in things){
 
 					// No line yet? Make one!
@@ -31,9 +30,12 @@ window.onload = function(){
 					if(!line){
 						line = {
 							name: thingName,
-							color: colors[thingName],
 							series: []
 						};
+						// Color this line? Only if it's in _graph!
+						if(graph[thingName]){
+							line.color = _HSVToRGBString(Joy.getReferenceById(my, graph[thingName]).data.color);
+						}
 						lines.push(line);
 					}
 
@@ -72,16 +74,18 @@ window.onload = function(){
 Joy.module("graph", function(){
 
 	Joy.add({
-		name: "Graph [number]",
+		name: "Start [number] at...",
 		type: "graph/number",
 		tags: ["graph", "action"],
-		init: "Graph {id:'varname', type:'variableName', variableType:'number'} as {id:'color', type:'color'}, "+
-			  "and start at {id:'value', type:'number'}",
+		init: "Start {id:'varname', type:'variableName', variableType:'number'} "+
+			  "at {id:'value', type:'number'}",
 		onact: function(my){
 
 			// COLOR
-			my.target._colors = my.target._colors || {}; // colors object, if none!
-			my.target._colors[my.data.varname] = my.data.color; // store color
+			//my.target._colors = my.target._colors || {}; // colors object, if none!
+			//my.target._colors[my.data.varname] = my.data.color; // store color
+			my.target._graph = my.target._graph || {};
+			my.target._graph[my.data.varname] = my.actor.varname.data.refID; // total hack
 
 			// SET VAR
 			var _variables = my.target._variables;

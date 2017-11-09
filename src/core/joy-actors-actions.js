@@ -240,17 +240,32 @@ Joy.add({
 		// Actions you can add:
 		// TODO: INCLUDE ALIASED ACTIONS
 		var actionOptions = [];
-		var actionActors = Joy.getActorsByTag("action");
-		for(var i=0;i<actionActors.length;i++){
-			var actionActor = actionActors[i];
-			var notActionTag = actionActor.tags.filter(function(tag){
-				return tag!="action";
-			})[0];
-			actionOptions.push({
-				label: actionActor.name,
-				value: actionActors[i].type,
-				category: notActionTag
-			});
+		if(self.onlyActions){
+			for(var i=0;i<self.onlyActions.length;i++){
+				var actionType = self.onlyActions[i];
+				var actorTemplate = Joy.getTemplateByType(actionType);
+				var notActionTag = actorTemplate.tags.filter(function(tag){
+					return tag!="action"; // first tag that's NOT "action"
+				})[0];
+				actionOptions.push({
+					label: actorTemplate.name,
+					value: actionType,
+					category: notActionTag
+				});
+			}
+		}else{
+			var actionActors = Joy.getTemplatesByTag("action");
+			for(var i=0;i<actionActors.length;i++){
+				var actionActor = actionActors[i];
+				var notActionTag = actionActor.tags.filter(function(tag){
+					return tag!="action";
+				})[0];
+				actionOptions.push({
+					label: actionActor.name,
+					value: actionActor.type,
+					category: notActionTag
+				});
+			}
 		}
 
 		// "+" Button: When clicked, prompt what actions to add!

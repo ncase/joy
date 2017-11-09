@@ -408,8 +408,8 @@ Joy.module("math", function(){
 
 	****************/
 	Joy.add({
-		type: "math/set",
 		name: "Set [number]",
+		type: "math/set",
 		tags: ["math", "action"],
 		init: "Set {id:'varname', type:'variableName', variableType:'number'} to {id:'value', type:'number'}",
 		onact: function(my){
@@ -439,7 +439,7 @@ Joy.module("math", function(){
 				{ label:"&times; Multiply", value:"*" },
 				{ label:"&divide; Divide", value:"/" }
 			]
-		})+" {id:'varname', type:'variableName', variableType:'number'}"
+		})+" {id:'varname', type:'variableName', variableType:'number', startWithExisting:true}"
 		+" by {id:'value', type:'number'}",
 
 		onact: function(my){
