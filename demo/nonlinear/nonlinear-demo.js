@@ -100,7 +100,7 @@ Joy.module("graph", function(){
 /////////////////////////
 
 // set the dimensions and margins of the graph
-var margin = {top:50, right:75, bottom:50, left:50},
+var margin = {top:30, right:75, bottom:50, left:60},
     width = 500 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
@@ -119,6 +119,26 @@ var chart = d3.select("#player").append("svg")
 var lineContainer = chart.append("g");
 var xAxis = chart.append("g").attr("class", "x axis");
 var yAxis = chart.append("g").attr("class", "y axis");
+
+// Axis Labels
+chart.append("text")
+	.attr("transform", "translate(" + (width) + "," + (height+31) + ")")
+	.attr("class", "axis-label")
+	.style("text-anchor", "end")
+	.html("steps &rarr;");
+chart.append("text")
+	.attr("transform", "translate(" + (-27) + "," + (0) + ") rotate(-90)")
+	.attr("class", "axis-label")
+	.style("text-anchor", "end")
+	.html("number &rarr;");
+
+// Append the Zero
+var zero = chart.append("rect")
+	.attr("x",0)
+	.attr("y",0)
+	.attr("width",width)
+	.attr("height",100)
+	.attr("class", "zero");
 
 // ON UPDATE
 function _updateGraph(data){
@@ -173,9 +193,21 @@ function _updateGraph(data){
 
 	// Set the X Axis
 	xAxis.attr("transform", "translate(0,"+height+")")
-	  .call(d3.axisBottom(x));
+		.call(
+			d3.axisBottom(x).tickFormat(function(e){
+        		if(Math.floor(e)!=e) return;
+        		return e;
+        	})
+    	);
 
 	// Set the Y Axis
 	yAxis.call(d3.axisLeft(y));
+
+	// ZERO
+	zero.attr("visibility", (min<0) ? "visible" : "hidden" );
+	if(min<0){
+		zero.attr("y", y(0))
+			.attr("height", y(min-1)-y(0))
+	}
 
 }
