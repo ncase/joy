@@ -31,25 +31,25 @@ function Joy(options){
 	// You can call this as "new Joy()" or just "Joy()" 
 	var self = (this==window) ? {} : this;
 
+	// Modules to import?
+	if(options.modules){
+		for(var i=0;i<options.modules.length;i++){
+			Joy.loadModule(options.modules[i]);
+		}
+	}
+
 	// I'm a Joy.Actor!
 	Joy.Actor.call(self, options);
 
-	// MASTER: Initialize References
+	// Initialize References
 	Joy.initReferences(self);
 
-	// MASTER OPTION: Allow Preview?
+	// Allow Preview?
 	if(self.allowPreview==undefined) self.allowPreview = false;
 	self.activelyEditingActor = null;
 	self.canPreview = function(){
 		return self.allowPreview && !self.activelyEditingActor;
 	};
-
-	// MASTER OPTION: Modules to import?
-	if(self.modules){
-		for(var i=0;i<self.modules.length;i++){
-			Joy.loadModule(self.modules[i]);
-		}
-	}
 
 	// And: automatically create MY widget!
 	self.createWidget();

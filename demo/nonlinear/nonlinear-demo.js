@@ -1,14 +1,26 @@
+var DEMOS = {
+	waves: {"start":{"actions":[{"type":"graph/number","varname":{"type":"variableName","refID":"id0"},"value":{"type":"number","chain":[{"type":"number_raw","value":0}]}},{"type":"graph/number","varname":{"type":"variableName","refID":"id1"},"value":{"type":"number","chain":[{"type":"number_raw","value":1}]}}],"resetVariables":true,"type":"actions"},"iterations":{"value":100,"type":"number"},"iterate":{"actions":[{"type":"instructions/comment","value":"two linear rules = one non-linear result!\nthat's the magic of FEEDBACK LOOPS ✨"},{"type":"math/set","varname":{"type":"variableName","refID":"id2"},"value":{"type":"number","chain":[{"type":"number_raw","value":0.15}]}},{"type":"math/operation","operation":{"value":"+","type":"choose"},"varname":{"type":"variableName","refID":"id0"},"value":{"type":"number","chain":[{"type":"variableName","refID":"id1"},{"type":"choose","value":"*"},{"type":"variableName","refID":"id2"}]}},{"type":"math/operation","operation":{"value":"-","type":"choose"},"varname":{"type":"variableName","refID":"id1"},"value":{"type":"number","chain":[{"type":"variableName","refID":"id0"},{"type":"choose","value":"*"},{"type":"variableName","refID":"id2"}]}}],"resetVariables":false,"type":"actions"},"_references":{"id0":{"id":"id0","tags":["number"],"data":{"value":"X","color":[284,0.71,1]},"connected":3},"id1":{"id":"id1","tags":["number"],"data":{"value":"Y","color":[209,0.5,1]},"connected":3},"id2":{"id":"id2","tags":["number"],"data":{"value":"something","color":[358,0.69,1]},"connected":3}}},
+	spring: {"start":{"actions":[{"type":"instructions/comment","value":"Let's simulate a simple spring system! Change the initial conditions & parameters as you please."},{"type":"graph/number","varname":{"type":"variableName","refID":"id0"},"value":{"type":"number","chain":[{"type":"number_raw","value":10}]}},{"type":"graph/number","varname":{"type":"variableName","refID":"id1"},"value":{"type":"number","chain":[{"type":"number_raw","value":0}]}}],"resetVariables":true,"type":"actions"},"iterations":{"value":100,"type":"number"},"iterate":{"actions":[{"type":"instructions/comment","value":"Hooke's Law for springs: F = -kx\nso, acceleration = (some negative number) * position"},{"type":"math/set","varname":{"type":"variableName","refID":"id2"},"value":{"type":"number","chain":[{"type":"number_raw","value":-0.05},{"type":"choose","value":"*"},{"type":"variableName","refID":"id0"}]}},{"type":"instructions/comment","value":"d/dt velocity = acceleration (by definition)\nd/dt position = velocity (by definition)"},{"type":"math/operation","operation":{"value":"+","type":"choose"},"varname":{"type":"variableName","refID":"id1"},"value":{"type":"number","chain":[{"type":"variableName","refID":"id2"}]}},{"type":"math/operation","operation":{"value":"+","type":"choose"},"varname":{"type":"variableName","refID":"id0"},"value":{"type":"number","chain":[{"type":"variableName","refID":"id1"}]}},{"type":"instructions/comment","value":"And finally, friction slows down the velocity:"},{"type":"math/operation","operation":{"value":"*","type":"choose"},"varname":{"type":"variableName","refID":"id1"},"value":{"type":"number","chain":[{"type":"number_raw","value":0.94}]}}],"resetVariables":false,"type":"actions"},"_references":{"id0":{"id":"id0","tags":["number"],"data":{"value":"position","color":[0,0.6,1]},"connected":3},"id1":{"id":"id1","tags":["number"],"data":{"value":"velocity","color":[30,0.8,1]},"connected":4},"id2":{"id":"id2","tags":["number"],"data":{"value":"acceleration","color":[210,0.8,1]},"connected":2}}},
+	disease: {"start":{"actions":[{"type":"instructions/comment","value":"Let's simulate a basic model of disease spreading!"},{"type":"graph/number","varname":{"type":"variableName","refID":"id0"},"value":{"type":"number","chain":[{"type":"number_raw","value":10}]}},{"type":"graph/number","varname":{"type":"variableName","refID":"id1"},"value":{"type":"number","chain":[{"type":"number_raw","value":300}]}}],"resetVariables":true,"type":"actions"},"iterations":{"value":50,"type":"number"},"iterate":{"actions":[{"type":"math/set","varname":{"type":"variableName","refID":"id2"},"value":{"type":"number","chain":[{"type":"variableName","refID":"id1"},{"type":"choose","value":"-"},{"type":"variableName","refID":"id0"}]}},{"type":"instructions/comment","value":"The number of all POSSIBLE interactions would be [infected] x [non-infected], so the number of interactions that ACTUALLY pass on the infection would be that times some small constant."},{"type":"math/set","varname":{"type":"variableName","refID":"id3"},"value":{"type":"number","chain":[{"type":"variableName","refID":"id0"},{"type":"choose","value":"*"},{"type":"variableName","refID":"id2"},{"type":"choose","value":"*"},{"type":"number_raw","value":0.0005}]}},{"type":"math/operation","operation":{"value":"+","type":"choose"},"varname":{"type":"variableName","refID":"id0"},"value":{"type":"number","chain":[{"type":"variableName","refID":"id3"}]}}],"resetVariables":false,"type":"actions"},"_references":{"id0":{"id":"id0","tags":["number"],"data":{"value":"infected","color":[68,0.95,0.81]},"connected":4},"id1":{"id":"id1","tags":["number"],"data":{"value":"total population","color":[321,0.43,1]},"connected":2},"id2":{"id":"id2","tags":["number"],"data":{"value":"non-infected","color":[210,0.8,1]},"connected":2},"id3":{"id":"id3","tags":["number"],"data":{"value":"disease-spreading contacts","color":[260,0.7,1]},"connected":2}}},
+	prey: {"start":{"actions":[{"type":"instructions/comment","value":"Let's simulate a basic predator-prey relationship!"},{"type":"graph/number","varname":{"type":"variableName","refID":"id0"},"value":{"type":"number","chain":[{"type":"number_raw","value":2}]}},{"type":"graph/number","varname":{"type":"variableName","refID":"id1"},"value":{"type":"number","chain":[{"type":"number_raw","value":100}]}}],"resetVariables":true,"type":"actions"},"iterations":{"value":165,"type":"number"},"iterate":{"actions":[{"type":"instructions/comment","value":"Rabbits multiply exponentially:"},{"type":"math/operation","operation":{"value":"*","type":"choose"},"varname":{"type":"variableName","refID":"id1"},"value":{"type":"number","chain":[{"type":"number_raw","value":1.03}]}},{"type":"instructions/comment","value":"How many rabbits eaten? The # of all POSSIBLE fox-rabbit encounters is [foxes] x [rabbits], so the # of ACTUAL encounters where a rabbit is eaten, is that number times some small constant."},{"type":"math/set","varname":{"type":"variableName","refID":"id2"},"value":{"type":"number","chain":[{"type":"variableName","refID":"id0"},{"type":"choose","value":"*"},{"type":"variableName","refID":"id1"},{"type":"choose","value":"*"},{"type":"number_raw","value":0.01}]}},{"type":"math/operation","operation":{"value":"-","type":"choose"},"varname":{"type":"variableName","refID":"id1"},"value":{"type":"number","chain":[{"type":"variableName","refID":"id2"}]}},{"type":"instructions/comment","value":"Foxes' reproduction depends on how many rabbits they eat! Since a fox needs to eat more than one rabbit to have the energy to create one new fox, [foxes] increases by [rabbits eaten] times some small constant."},{"type":"math/operation","operation":{"value":"+","type":"choose"},"varname":{"type":"variableName","refID":"id0"},"value":{"type":"number","chain":[{"type":"variableName","refID":"id2"},{"type":"choose","value":"*"},{"type":"number_raw","value":0.2}]}},{"type":"instructions/comment","value":"And finally, some foxes die at each step."},{"type":"math/operation","operation":{"value":"*","type":"choose"},"varname":{"type":"variableName","refID":"id0"},"value":{"type":"number","chain":[{"type":"number_raw","value":0.91}]}},{"type":"instructions/comment","value":"P.S: This is the classic Lotka-Volterra model. The population boom-busts aren't supposed to get bigger over time -- that's a \"glitch\" caused by this model being discrete-time, rather than continuous. Will fix later."}],"resetVariables":false,"type":"actions"},"_references":{"id0":{"id":"id0","tags":["number"],"data":{"value":"foxes","color":[29,0.95,1]},"connected":4},"id1":{"id":"id1","tags":["number"],"data":{"value":"rabbits","color":[307,1,1]},"connected":4},"id2":{"id":"id2","tags":["number"],"data":{"value":"rabbits eaten","color":[210,0.8,1]},"connected":3}}},
+	blank: {}
+};
+
 window.onload = function(){
+
+	// Data
+	var model = _getParameterByName("model");
+	var data = model ? DEMOS[model] : Joy.loadFromURL();
 
 	// Joy
 	window.joy = new Joy({
 		
 		init: "Let's graph these numbers: {id:'start', type:'actions', onlyActions:['graph/number','instructions/comment']}"+
-			  "Do this on each of {id:'iterations', type:'number', placeholder:50} steps: "+
+			  "Do this on each of {id:'iterations', type:'number', min:1, placeholder:50, noVariables:true} steps: "+
 			  "{id:'iterate', type:'actions', resetVariables:false, onlyActions:['math/operation','math/set','instructions/comment']}"+
 			  "<hr> {type:'save'}",
 
-		data: Joy.loadFromURL(),
+		data: data,
 		allowPreview: true,
 		container: "#editor",
 		modules: ["graph", "math", "instructions"],
@@ -50,13 +62,13 @@ window.onload = function(){
 
 			// Start
 			var obj = {};
-			my.start.act(obj);
+			var stopMessage = my.start.act(obj);
 			_log(0);
 
 			// Iterate
 			var iterations = my.iterations.get();
 			for(var i=0; i<iterations; i++){
-				my.iterate.act(obj);
+				if(stopMessage!="STOP") my.iterate.act(obj);
 				_log(i+1);
 			}
 
@@ -127,7 +139,7 @@ chart.append("text")
 	.style("text-anchor", "end")
 	.html("steps &rarr;");
 chart.append("text")
-	.attr("transform", "translate(" + (-27) + "," + (0) + ") rotate(-90)")
+	.attr("transform", "translate(" + (-31) + "," + (0) + ") rotate(-90)")
 	.attr("class", "axis-label")
 	.style("text-anchor", "end")
 	.html("number &rarr;");
@@ -195,7 +207,7 @@ function _updateGraph(data){
 	xAxis.attr("transform", "translate(0,"+height+")")
 		.call(
 			d3.axisBottom(x).tickFormat(function(e){
-        		if(Math.floor(e)!=e) return;
+        		if(Math.floor(e)!=e) return; // INTEGERS ONLY
         		return e;
         	})
     	);

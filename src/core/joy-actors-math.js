@@ -28,6 +28,9 @@ Joy.module("math", function(){
 		return {
 			init: function(self){
 
+				// no variables?
+				if(self.noVariables) return;
+
 				// Force data to a chain...
 				var originalValue = self.getData("value");
 				if(typeof originalValue==="number"){
@@ -131,6 +134,12 @@ Joy.module("math", function(){
 
 			},
 			initWidget: function(self){
+
+				// no variables?
+				if(self.noVariables){
+					_old.initWidget(self);
+					return;
+				}
 
 				// Container!
 				self.dom = document.createElement("span");
@@ -360,6 +369,14 @@ Joy.module("math", function(){
 
 			},
 			onget: function(my){
+
+				// no variables?
+				if(my.actor.noVariables){
+					return _old.onget(my);
+				}
+
+				////////////////
+
 				var result;
 				for(var i=0; i<my.data.chain.length; i+=2){
 
