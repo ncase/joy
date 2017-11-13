@@ -187,4 +187,21 @@ function Turtle(config){
 		self.frameY = data.frameY;
 	}
 
+	///////////////////////
+	// Label the turtle! //
+	///////////////////////
+
+	self.label = function(label){
+		ctx.save();
+		ctx.translate(self.x, self.y);
+		ctx.font = "14px sans-serif";
+		ctx.textAlign = "center";
+		ctx.fillStyle = "#444";
+			var lines = label.split('\n');
+			for(var i=0; i<lines.length; i++){
+	    		ctx.fillText(lines[i], 0, 30+(i*16) );
+	    	}
+		ctx.restore();
+	};
+
 }

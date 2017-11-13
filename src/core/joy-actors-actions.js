@@ -195,6 +195,8 @@ Joy.add({
 			bulletContainer.onmouseenter = function(event){
 
 				if(!self.top.canPreview("actions")) return;
+
+				self.top.activePreview = self;
 				
 				// Create Preview Data
 				self.previewData = _clone(self.data);
@@ -221,6 +223,7 @@ Joy.add({
 			bulletContainer.onmouseleave = function(){
 				if(self.previewData){
 					self.previewData = null;
+					self.top.activePreview = null;
 					self.update();
 					document.head.removeChild(_previewStyle);
 					dom.classList.remove("joy-previewing");

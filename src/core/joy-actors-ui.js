@@ -25,10 +25,10 @@ Joy.add({
 			step: o.step,
 			value: self.getData("value"),
 			onstart: function(){
-				self.top.activelyEditingActor = self;
+				self.top.activePreview = self;
 			},
 			onstop: function(){
-				self.top.activelyEditingActor = null;
+				self.top.activePreview = null;
 			},
 			onchange: function(value){
 				self.setData("value", value);
@@ -111,10 +111,10 @@ Joy.add({
 						_changeLabelColor();
 					},
 					onopen: function(){
-						self.top.activelyEditingActor = self;
+						self.top.activePreview = self;
 					},
 					onclose: function(){
-						self.top.activelyEditingActor = null;
+						self.top.activePreview = null;
 					}
 				});
 
@@ -293,29 +293,36 @@ Joy.add({
 
 		// DOM
 		var dom = document.createElement("div");
+		dom.className = "joy-save";
 		self.dom = dom;
 		
 		// Save Button
 		self.saveButton = new Joy.ui.Button({
 			label: "save:",
 			onclick: function(){
+				
 				var url = Joy.saveToURL(self.top.data);
 				self.url.setValue(url);
 				self.url.select();
+
+				// info
+				var chars = url.length;
+				self.info.innerHTML = "P.S: you can shorten your link with <a href='http://tinyurl.com/' target='_blank'>TinyURL</a>!"
+
 			}
 		});
 		dom.appendChild(self.saveButton.dom);
 
-		// Spacer
-		dom.appendChild(_nbsp());
-		dom.appendChild(_nbsp());
-
 		// URL TextBox
 		self.url = new Joy.ui.TextBox({
-			readonly: true,
-			width: "calc(100% - 100px)"
+			readonly: true
 		});
 		dom.appendChild(self.url.dom);
+
+		// Details: chars & tinyurl link
+		self.info = document.createElement("div");
+		self.info.id = "joy-save-info";
+		dom.appendChild(self.info);		
 
 	}
 });

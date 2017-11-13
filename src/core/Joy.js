@@ -52,7 +52,7 @@ function Joy(options){
 	self.canPreview = function(type){
 		type = type.charAt(0).toUpperCase() + type.slice(1);
 		var allowed = self["preview"+type];
-		return allowed && !self.activelyEditingActor;
+		return allowed && !self.activePreview;
 	};
 
 	// And: automatically create MY widget!

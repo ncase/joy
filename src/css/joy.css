@@ -57,6 +57,28 @@ More prefixing to avoid NAME COLLISIONS
 }
 
 /***************/
+/* SAVE ********/
+/***************/
+
+.joy-save{
+	position: relative;
+}
+.joy-save input{
+	display: block;
+    width: calc(100% - 80px);
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+.joy-save #joy-save-info{
+	position: absolute;
+    bottom: 0px;
+    left: 81px;
+    font-size: 12px;
+    line-height: 1em;
+}
+
+/***************/
 /* BUTTON ******/
 /***************/
 

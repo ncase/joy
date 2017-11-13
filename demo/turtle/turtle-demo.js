@@ -34,9 +34,22 @@ window.onload = function(){
 		previewVariables: true,
 
 		onupdate: function(my){
+
 			turtle.start();
 			my.turtleInstructions.act(turtle);
 			turtle.draw();
+
+			// TOTAL HACK BUT W/E
+			if(my.activePreview && my.activePreview.type=="actions"){
+				var label = "";
+				for(var key in turtle._variables){
+					var value = turtle._variables[key];
+					if(value.toString().length>10) value=turtle._variables[key].toFixed(2); // hax
+					label += key+": "+value+"\n";
+				}
+				turtle.label(label);
+			}
+
 		}
 
 	});
