@@ -26,9 +26,12 @@ window.onload = function(){
 		init: "I'm a turtle! Do the following: {id:'turtleInstructions', type:'actions'} <hr> {type:'save'}",
 
 		data: data,
-		allowPreview: true,
 		container: "#editor",
 		modules: ["turtle", "instructions", "math"],
+
+		previewActions: true,
+		previewNumbers: true,
+		previewVariables: true,
 
 		onupdate: function(my){
 			turtle.start();

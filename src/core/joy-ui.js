@@ -9,7 +9,7 @@ ui.init = function(master){
 	// CSS
 	master.dom.classList.add("joy-master");
 
-	// Manual Scroll
+	// Manual Scroll (to prevent it propagating up...)
 	master.container.addEventListener('wheel', function(event){
 		var delta = event.deltaY;
 		master.container.scrollTop += delta;

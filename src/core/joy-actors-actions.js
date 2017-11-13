@@ -38,6 +38,15 @@ Joy.add({
 		list.id = "joy-list";
 		dom.appendChild(list);
 
+		// Preview Variables?
+		/*var varPreview;
+		if(self.top.canPreview("variables")){
+			varPreview = document.createElement("div");
+			varPreview.id = "joy-variables-preview";
+			varPreview.innerHTML = "AHHHH";
+			dom.appendChild(varPreview);
+		}*/
+
 		//////////////////////////////////////////
 		// Create Bullet /////////////////////////
 		//////////////////////////////////////////
@@ -146,13 +155,9 @@ Joy.add({
 			// New entry
 			var entry = {};
 			var entryDOM = document.createElement("div");
-			if(atIndex===undefined){
-				self.entries.push(entry);
-				list.appendChild(entryDOM);
-			}else{
-				self.entries.splice(atIndex, 0, entry);
-				list.insertBefore(entryDOM, list.children[atIndex]);
-			}
+			if(atIndex===undefined) atIndex = self.entries.length;
+			self.entries.splice(atIndex, 0, entry);
+			list.insertBefore(entryDOM, list.children[atIndex]);
 
 			// The Bullet is a Chooser!
 			var bullet = _createBullet(entry);
@@ -186,9 +191,10 @@ Joy.add({
 				self.update();
 			};
 			var _previewAction;
+			var _previewStyle;
 			bulletContainer.onmouseenter = function(event){
 
-				if(!self.top.canPreview()) return;
+				if(!self.top.canPreview("actions")) return;
 				
 				// Create Preview Data
 				self.previewData = _clone(self.data);
@@ -201,13 +207,24 @@ Joy.add({
 				// How far to go along action?
 				_calculatePreviewParam(event);
 
+				// Add in a style
+				_previewStyle = document.createElement("style");
+				document.head.appendChild(_previewStyle);
+				_previewStyle.sheet.addRule('.joy-actions.joy-previewing > #joy-list > div:nth-child(n+'+(actionIndex+2)+')','opacity:0.1');
+				_previewStyle.sheet.addRule('.joy-actions.joy-previewing > div.joy-bullet','opacity:0.1');
+				dom.classList.add("joy-previewing");
+
 			};
 			bulletContainer.onmousemove = function(event){
 				if(self.previewData) _calculatePreviewParam(event);
 			};
 			bulletContainer.onmouseleave = function(){
-				self.previewData = null;
-				self.update();
+				if(self.previewData){
+					self.previewData = null;
+					self.update();
+					document.head.removeChild(_previewStyle);
+					dom.classList.remove("joy-previewing");
+				}
 			};
 
 			return entry;

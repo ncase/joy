@@ -22,6 +22,7 @@ More prefixing to avoid NAME COLLISIONS
 .joy-actions{
 	margin-top: 0.5em;
 	margin-bottom: 0.5em;
+	position: relative;
 }
 
 .joy-actions #joy-list{}

@@ -42,7 +42,7 @@ Joy.add({
 		var _fps = 30;
 		self.dom.onmouseenter = function(){
 
-			if(!self.top.canPreview()) return;
+			if(!self.top.canPreview("numbers")) return;
 			
 			// Create Preview Data
 			self.previewData = _clone(self.data);
@@ -55,7 +55,7 @@ Joy.add({
 			var _timer = 0;
 			_ticker = setInterval(function(){
 
-				if(!self.top.canPreview()) return _stopPreview(); // don't even
+				if(!self.top.canPreview("numbers")) return _stopPreview(); // don't even
 
 				_timer += (Math.TAU/_fps)/0.25; // 0.25 seconds
 				self.previewData.value = self.data.value + Math.sin(_timer)*_amplitude;
@@ -137,7 +137,7 @@ Joy.add({
 		var _initialV, _vel, _timer;
 		self.dom.onmouseenter = function(){
 
-			if(!self.top.canPreview()) return;
+			if(!self.top.canPreview("numbers")) return; // yeah let's pretend it's a number
 			
 			// Create Preview Data
 			_initialV = self.data.value[2];
@@ -148,7 +148,7 @@ Joy.add({
 			_vel = 2*(2/_fps);
 			_ticker = setInterval(function(){
 
-				if(!self.top.canPreview()) return _stopPreview(); // don't
+				if(!self.top.canPreview("numbers")) return _stopPreview(); // don't
 
 				// Bounce up & down
 				var hsl = self.previewData.value;

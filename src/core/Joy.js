@@ -44,11 +44,15 @@ function Joy(options){
 	// Initialize References
 	Joy.initReferences(self);
 
-	// Allow Preview?
-	if(self.allowPreview==undefined) self.allowPreview = false;
-	self.activelyEditingActor = null;
-	self.canPreview = function(){
-		return self.allowPreview && !self.activelyEditingActor;
+	// Allow previewing of... actions, numbers, variables?
+	if(self.previewActions==undefined) self.previewActions = false;
+	if(self.previewNumbers==undefined) self.previewNumbers = false;
+	if(self.previewVariables==undefined) self.previewVariables = false;
+	self.activePreview = null;
+	self.canPreview = function(type){
+		type = type.charAt(0).toUpperCase() + type.slice(1);
+		var allowed = self["preview"+type];
+		return allowed && !self.activelyEditingActor;
 	};
 
 	// And: automatically create MY widget!
