@@ -54,13 +54,13 @@ modal.show = function(ui){
 	var x,y, margin=20;
 	switch(position){ // TODO: smarter positioning
 		case "below":
-			var x = sourceBounds.x + sourceBounds.width/2; // x: middle
-			var y = sourceBounds.y + sourceBounds.height + margin; // y: bottom
+			var x = sourceBounds.left + sourceBounds.width/2; // x: middle
+			var y = sourceBounds.top + sourceBounds.height + margin; // y: bottom
 			x -= boxBounds.width/2;
 			break;
 		case "left":
-			var x = sourceBounds.x - margin; // x: left
-			var y = sourceBounds.y + sourceBounds.height/2; // y: middle
+			var x = sourceBounds.left - margin; // x: left
+			var y = sourceBounds.top + sourceBounds.height/2; // y: middle
 			x -= boxBounds.width;
 			y -= boxBounds.height/2;
 			break;
