@@ -7,10 +7,10 @@ body{
 	letter-spacing: 2px;
 	color: #111;
 
-	background-image: linear-gradient(
-		hsla(200, 41%, 61%, 1),
-		hsla(322, 20%, 71%, 1)
-	);
+	background-image: -webkit-linear-gradient( hsla(200, 41%, 61%, 1), hsla(322, 20%, 71%, 1) );
+	background-image: -moz-linear-gradient( hsla(200, 41%, 61%, 1), hsla(322, 20%, 71%, 1) );
+	background-image: -o-linear-gradient( hsla(200, 41%, 61%, 1), hsla(322, 20%, 71%, 1) );
+	background-image: linear-gradient( hsla(200, 41%, 61%, 1), hsla(322, 20%, 71%, 1) );
 }
 
 #container{
