@@ -12,6 +12,7 @@ window.onload = function(){
 	// Data
 	var model = _getParameterByName("drawing");
 	var data = model ? DEMOS[model] : Joy.loadFromURL();
+	data = data || {};
 
 	// Init
 	window.turtle = new Turtle({

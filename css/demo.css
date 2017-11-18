@@ -37,11 +37,22 @@ pre{
 	border-bottom: 2px dashed #ccc;
 	margin: 1.5em 0;
 }
+#footer{
+	width: 920px;
+	height: 105px;
+	margin: 20px auto;
+}
+#more-shtuff{
+	width: 320px;
+    float: left;
+    font-size: 14px;
+    line-height: 1.5em;
+}
 #demos{
 	overflow: hidden;
-	width: 800px;
+    width: 600px;
 	text-align: center;
-	margin: 0 auto;
+    float: right;
 }
 #demos a{
 	display: inline-block;
