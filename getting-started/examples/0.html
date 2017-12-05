@@ -1,0 +1,47 @@
+<!doctype>
+<html>
+<head>
+	<link rel="stylesheet" href="../../src/css/joy.css">
+	<style>
+	body{
+		font-size: 20px;
+		font-family: sans-serif;
+		font-weight: 100;
+	}
+	</style>
+</head>
+<body>
+<div id="joy"></div>
+<div id="box"></div>
+</body>
+</html>
+
+<script src="../../src/lib/-helpers.js"></script>
+<script src="../../src/lib/watch.min.js"></script>
+<script src="../../src/lib/lz-string.min.js"></script>
+
+<script src="../../src/core/Joy.js"></script>
+<script src="../../src/core/joy-ui.js"></script>
+<script src="../../src/core/joy-modal.js"></script>
+<script src="../../src/core/joy-actors-ui.js"></script>
+<script src="../../src/core/joy-actors-actions.js"></script>
+<script src="../../src/core/joy-actors-instructions.js"></script>
+<script src="../../src/core/joy-actors-vars.js"></script>
+<script src="../../src/core/joy-actors-math.js"></script>
+
+<script>
+
+window.joy = Joy({
+	init: "Make the box {id:'width', type:'number', placeholder:50}px wide, "+
+		  "{id:'height', type:'number', placeholder:50}px tall, "+
+		  "and colored {id:'color', type:'color'}",
+	container: "#joy",
+	onupdate: function(my){
+		var box = document.getElementById("box");
+		box.style.width = my.width.get();
+		box.style.height = my.height.get();
+		box.style.background = my.color.get();
+	}
+});
+
+</script>

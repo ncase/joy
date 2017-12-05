@@ -45,9 +45,9 @@ function Joy(options){
 	Joy.initReferences(self);
 
 	// Allow previewing of... actions, numbers, variables?
-	if(self.previewActions==undefined) self.previewActions = false;
-	if(self.previewNumbers==undefined) self.previewNumbers = false;
-	if(self.previewVariables==undefined) self.previewVariables = false;
+	if(self.previewActions==undefined) self.previewActions = true;
+	if(self.previewNumbers==undefined) self.previewNumbers = true;
+	//if(self.previewVariables==undefined) self.previewVariables = false;
 	self.activePreview = null;
 	self.canPreview = function(type){
 		type = type.charAt(0).toUpperCase() + type.slice(1);
