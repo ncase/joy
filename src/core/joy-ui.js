@@ -155,11 +155,13 @@ ui.Scrubber = function(config){
 	// DRAG IT, BABY
 	var isDragging = false;
 	var wasDragging = false;
-	var startDragX, startDragValue;
+	var lastDragX, startDragValue;
+	var delta = 0;
 	var _onmousedown = function(event){
 		isDragging = true;
-		startDragX = event.clientX;
+		lastDragX = event.clientX;
 		startDragValue = self.value;
+		delta = 0;
 		if(config.onstart) config.onstart();
 	};
 	var _onmousemove = function(event){
@@ -172,7 +174,13 @@ ui.Scrubber = function(config){
 			step = parseFloat(step.toPrecision(1)); // floating point crap
 			
 			// Change number
-			var dx = Math.floor((event.clientX - startDragX)/2);
+			var velocity = event.clientX - lastDragX;
+			lastDragX = event.clientX;
+			var multiplier = Math.abs(velocity/10);
+			if(multiplier<1) multiplier=1;
+			if(multiplier>3) multiplier=3;
+			delta += velocity*multiplier;
+			var dx = Math.floor(delta/2);
 			var newValue = startDragValue + dx*step;
 			newValue = _boundNumber(newValue);
 			

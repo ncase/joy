@@ -99,9 +99,12 @@ Joy.add({
 			var myRefID = self.getData("refID");
 			refs.forEach(function(ref){
 				if(ref.id==myRefID) return; // don't show SELF
+				var color = ref.data.color;
+				color = _HSVToRGBString(color[0], color[1], color[2]);
 				options.push({
 					label: "["+ref.data.value+"]",
-					value: ref.id
+					value: ref.id,
+					color: color
 				});
 			});
 

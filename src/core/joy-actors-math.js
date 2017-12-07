@@ -170,12 +170,15 @@ Joy.module("math", function(){
 					if(chainActor.type=="variableName") myRefID=chainActor.getData("refID");
 					refs.forEach(function(ref){
 						if(ref.id==myRefID) return; // don't show SELF
+						var color = ref.data.color;
+						color = _HSVToRGBString(color[0], color[1], color[2]);
 						options.push({
 							label: "["+ref.data.value+"]",
 							value: {
 								type: "variableName",
 								refID: ref.id
-							}
+							},
+							color: color
 						});
 					});
 
@@ -474,6 +477,51 @@ Joy.module("math", function(){
 
 		}
 
+	});
+
+	/****************
+
+	If then... for math
+
+	****************/
+	Joy.add({
+		name: "If [math] then...",
+		type: "math/if",
+		tags: ["math", "action"],
+		init: "If {id:'value1', type:'number'} "+
+			  "{id:'test', type:'choose', options:['<','≤','=','≥','>'], placeholder:'='} "+
+			  "{id:'value2', type:'number'}, then: "+
+			  "{id:'actions', type:'actions', resetVariables:false}",
+		onact: function(my){
+
+			var value1 = my.data.value1;
+			var value2 = my.data.value2;
+
+			var result;
+			switch(my.data.test){
+				case '<': 
+					result = value1<value2;
+					break;
+				case '≤': 
+					result = value1<=value2;
+					break;
+				case '=': 
+					result = value1==value2;
+					break;
+				case '≥': 
+					result = value1>=value2;
+					break;
+				case '>':
+					result = value1>value2;
+					break;
+			}
+
+			if(result){
+				var message = my.actor.actions.act(my.target);
+				if(message=="STOP") return message; // STOP
+			}
+
+		}
 	});
 
 });

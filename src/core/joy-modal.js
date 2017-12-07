@@ -144,6 +144,9 @@ modal.Chooser = function(config){
 			var option = config.options[i];
 			var optionDOM = document.createElement("div");
 			optionDOM.innerHTML = option.label;
+			if(option.color){
+				optionDOM.style.color = option.color;
+			}
 
 			// Put it in its category!
 			var category = option.category || _placeholder_;

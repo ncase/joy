@@ -26,8 +26,20 @@ Joy.module("instructions", function(){
 		}
 	});
 
+	/*Joy.add({
+		name: "If... then...",
+		type: "instructions/if",
+		tags: ["instructions", "action"],
+		init: "If AHHH, then: "+
+			  "{id:'actions', type:'actions', resetVariables:false}",
+		onact: function(my){
+			var message = my.actor.actions.act(my.target);
+			if(message=="STOP") return message; // STOP
+		}
+	});*/
+
 	Joy.add({
-		name: "// Comment",
+		name: "// Write a note",
 		type: "instructions/comment",
 		tags: ["instructions", "action"],
 		initWidget: function(self){

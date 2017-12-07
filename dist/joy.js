@@ -1012,11 +1012,13 @@ ui.Scrubber = function(config){
 	// DRAG IT, BABY
 	var isDragging = false;
 	var wasDragging = false;
-	var startDragX, startDragValue;
+	var lastDragX, startDragValue;
+	var delta = 0;
 	var _onmousedown = function(event){
 		isDragging = true;
-		startDragX = event.clientX;
+		lastDragX = event.clientX;
 		startDragValue = self.value;
+		delta = 0;
 		if(config.onstart) config.onstart();
 	};
 	var _onmousemove = function(event){
@@ -1029,7 +1031,13 @@ ui.Scrubber = function(config){
 			step = parseFloat(step.toPrecision(1)); // floating point crap
 			
 			// Change number
-			var dx = Math.floor((event.clientX - startDragX)/2);
+			var velocity = event.clientX - lastDragX;
+			lastDragX = event.clientX;
+			var multiplier = Math.abs(velocity/10);
+			if(multiplier<1) multiplier=1;
+			if(multiplier>3) multiplier=3;
+			delta += velocity*multiplier;
+			var dx = Math.floor(delta/2);
 			var newValue = startDragValue + dx*step;
 			newValue = _boundNumber(newValue);
 			
@@ -1456,6 +1464,9 @@ modal.Chooser = function(config){
 			var option = config.options[i];
 			var optionDOM = document.createElement("div");
 			optionDOM.innerHTML = option.label;
+			if(option.color){
+				optionDOM.style.color = option.color;
+			}
 
 			// Put it in its category!
 			var category = option.category || _placeholder_;
@@ -2496,8 +2507,20 @@ Joy.module("instructions", function(){
 		}
 	});
 
+	/*Joy.add({
+		name: "If... then...",
+		type: "instructions/if",
+		tags: ["instructions", "action"],
+		init: "If AHHH, then: "+
+			  "{id:'actions', type:'actions', resetVariables:false}",
+		onact: function(my){
+			var message = my.actor.actions.act(my.target);
+			if(message=="STOP") return message; // STOP
+		}
+	});*/
+
 	Joy.add({
-		name: "// Comment",
+		name: "// Write a note",
 		type: "instructions/comment",
 		tags: ["instructions", "action"],
 		initWidget: function(self){
@@ -2622,9 +2645,12 @@ Joy.add({
 			var myRefID = self.getData("refID");
 			refs.forEach(function(ref){
 				if(ref.id==myRefID) return; // don't show SELF
+				var color = ref.data.color;
+				color = _HSVToRGBString(color[0], color[1], color[2]);
 				options.push({
 					label: "["+ref.data.value+"]",
-					value: ref.id
+					value: ref.id,
+					color: color
 				});
 			});
 
@@ -2872,12 +2898,15 @@ Joy.module("math", function(){
 					if(chainActor.type=="variableName") myRefID=chainActor.getData("refID");
 					refs.forEach(function(ref){
 						if(ref.id==myRefID) return; // don't show SELF
+						var color = ref.data.color;
+						color = _HSVToRGBString(color[0], color[1], color[2]);
 						options.push({
 							label: "["+ref.data.value+"]",
 							value: {
 								type: "variableName",
 								refID: ref.id
-							}
+							},
+							color: color
 						});
 					});
 
@@ -3176,6 +3205,51 @@ Joy.module("math", function(){
 
 		}
 
+	});
+
+	/****************
+
+	If then... for math
+
+	****************/
+	Joy.add({
+		name: "If [math] then...",
+		type: "math/if",
+		tags: ["math", "action"],
+		init: "If {id:'value1', type:'number'} "+
+			  "{id:'test', type:'choose', options:['<','≤','=','≥','>'], placeholder:'='} "+
+			  "{id:'value2', type:'number'}, then: "+
+			  "{id:'actions', type:'actions', resetVariables:false}",
+		onact: function(my){
+
+			var value1 = my.data.value1;
+			var value2 = my.data.value2;
+
+			var result;
+			switch(my.data.test){
+				case '<': 
+					result = value1<value2;
+					break;
+				case '≤': 
+					result = value1<=value2;
+					break;
+				case '=': 
+					result = value1==value2;
+					break;
+				case '≥': 
+					result = value1>=value2;
+					break;
+				case '>':
+					result = value1>value2;
+					break;
+			}
+
+			if(result){
+				var message = my.actor.actions.act(my.target);
+				if(message=="STOP") return message; // STOP
+			}
+
+		}
 	});
 
 });
