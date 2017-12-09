@@ -1,0 +1,39 @@
+<!doctype>
+<html>
+<head>
+	<link rel="stylesheet" href="../../dist/joy.css">
+	<style>
+	body{
+		margin: 0;
+		font-size: 20px;
+		font-family: sans-serif;
+		font-weight: 100;
+	}
+	#box{
+		margin-left: 1.5em;
+	}
+	</style>
+</head>
+<body>
+<div id="joy"></div>
+<div id="box"></div>
+</body>
+</html>
+
+<script src="../../dist/joy.min.js"></script>
+<script>
+window.joy = Joy({
+	init: "Make the box {id:'width', type:'number', placeholder:50}px wide, "+
+		  "{id:'height', type:'number', placeholder:50}px tall, "+
+		  "and colored {id:'color', type:'color'}",
+	container: "#joy",
+	onupdate: function(my){
+		//debugger;
+		// TODO: no .get() needed! all in .data, for consistency...
+		var box = document.getElementById("box");
+		box.style.width = my.width.get();
+		box.style.height = my.height.get();
+		box.style.background = my.color.get();
+	}
+});
+</script>

@@ -1,0 +1,22 @@
+body{
+	margin:0;
+	font-size: 22px;
+	font-weight: 100;
+	font-family: "Helvetica", "Arial", sans-serif;
+	line-height: 1.5em;
+}
+#content{
+	width:800px;
+	margin:80px auto;
+}
+iframe{
+	border: 2px solid #ddd;
+}
+pre{
+	font-size: 16px;
+    line-height: 1.5em;
+}
+hr{
+	border:none;
+	border-bottom: 2px solid #ccc;
+}

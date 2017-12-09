@@ -1,0 +1,98 @@
+<!doctype>
+<html>
+<head>
+	<link rel="stylesheet" href="../../dist/joy.css">
+	<style>
+	body{
+		margin: 0;
+		font-size: 20px;
+		font-family: Helvetica, Arial, sans-serif;
+		font-weight: 100;
+		line-height: 1.7em;
+	}
+	#turtle, #joy{
+		width:400px; height:400px;
+		float:left;
+	}
+	#joy{
+		background: #eee;
+	}
+	hr{
+		border: none;
+		border-bottom: 2px dashed #ccc;
+		margin: 1.5em 0;
+	}
+	</style>
+</head>
+<body>
+<div id="turtle"></div>
+<div id="joy"></div>
+</body>
+</html>
+
+<script src="../../dist/joy.min.js"></script>
+<script src="Turtle.js"></script>
+<script>
+
+// TURTLE
+window.turtle = new Turtle({
+	width:400, height:400,
+	doNotDrag: true,
+	data: Joy.loadFromURL()
+});
+document.querySelector("#turtle").appendChild(turtle.canvas);
+
+// JOY ACTIONS
+Joy.add({
+	name: "Move turtle",
+	type: "turtle/forward",
+	tags: ["turtle", "action"],
+	init: "Move forward {id:'steps', type:'number', placeholder:50} steps",
+	onact: function(my){
+		my.target.forward(my.data.steps); // "my.target" will be the turtle
+	}
+});
+Joy.add({
+	name: "Turn turtle",
+	type: "turtle/turn",
+	tags: ["turtle", "action"],
+	init: "Turn {id:'angle', type:'number', placeholder:10} degrees",
+	onact: function(my){
+		my.target.turn(my.data.angle);
+	}
+});
+Joy.add({
+	name: "Change color",
+	type: "turtle/color",
+	tags: ["turtle", "action"],
+	init: "Change color to {id:'color', type:'color'}",
+	onact: function(my){
+		my.target.setColor(my.data.color);
+	}
+});
+
+// JOY
+Joy({
+	// Where the Joy editor goes:
+	container: "#joy",
+
+	// The words &amp; widgets inside the editor:
+	init: "I'm a turtle! Do the following: "+
+		  "{id:'turtleInstructions', type:'actions'} "+ // a list of actions
+		  "<hr> {type:'save'}", // a save button!
+    
+    // Load data from URL, otherwise blank:
+	data: Joy.loadFromURL(),
+
+	// Other actions to include, beyond turtle actions:
+	modules: ["instructions", "math"],
+
+	// What to do when the user makes a change:
+	onupdate: function(my){
+		turtle.start();
+		my.turtleInstructions.act(turtle);
+		turtle.draw();
+	}
+});
+
+</script>

@@ -1,0 +1,193 @@
+<!doctype>
+<html>
+<head>
+	<title>Getting Started with Joy.js</title>
+	<link rel="stylesheet" href="getting-started.css">
+	<link rel="stylesheet" href="highlight/zenburn.css">
+</head>
+<body>
+
+<div id="content">
+
+<h1>Getting Started with JOY.js</h1>
+
+<p>
+// (for developers. for players, check out examples)
+</p>
+
+<p>
+1) Download Joy.js
+<br>
+2) Download Joy's default style sheet
+<br>
+3) Include both of them in your .html file
+<br>
+4) [then a miracle occurs]
+<br>
+5) you now have a live, direct, end-user programmable tool! ✨
+</p>
+
+<p>
+But seriously, let's see a basic, concrete example of Joy.js in action. 
+Let's say we want to let the user modify a box. First, we make the html:
+</p>
+
+<pre style="width:220px"><code class="js">&lt;div id="joy"&gt;&lt;/div&gt;
+&lt;div id="box"&gt;&lt;/div&gt;
+</code></pre>
+
+<p>
+...where "joy" is where the Joy editor goes, and "box" is the &lt;div&gt; your user can modify using Joy.
+Then, after including Joy.js &amp; its default stylesheet,
+<b>we tell Joy.js how to link up the editor &amp; the box:</b>
+</p>
+
+<pre style="width:660px"><code class="js">Joy({
+    // Where the Joy editor goes:
+    container: "#joy",
+
+    // The words &amp; widgets inside the editor:
+    init: "Make the box "+
+          // Define widgets with JSON/object-literal notation:
+          "{id:'width', type:'number', placeholder:50}px wide, "+
+          "{id:'height', type:'number', placeholder:50}px tall, "+
+          "and colored {id:'color', type:'color'}",
+
+    // What to do when the user makes a change:
+    onupdate: function(my){
+        var box = document.getElementById("box");
+        box.style.width = my.data.width;
+        box.style.height = my.data.height;
+        box.style.background = my.data.color;
+    }
+});
+</code></pre>
+
+<p>
+Et voilà! You get the following.
+Hover over a number or color to see <i>what</i> that would change in the box,
+then click/drag to actually change the box:
+</p>
+
+<iframe src="examples/box.html" width="800" height="300"></iframe>
+
+<p>
+Yeah not exactly Turing Award-winning material there, but that's just a basic example.
+Now, let's see how to use Joy.js to its fullest! Let's see...
+</p>
+
+<h2>...The REAL Stuff</h2>
+
+<p>
+Let's say you already have a programmable object, like... a line-drawing Turtle.
+However, you can only program it through traditional code,
+which for non-programmers is a huge barrier,
+and even <i>for</i> programmers, still isn't live, direct, or explorative as it <i>could</i> be. 
+</p>
+
+<p>
+// load code example...
+</p>
+
+<p>
+That's where Joy.js comes to the rescue!
+First, <b>we have to tell Joy.js to create a "widget" for each action the Turtle can take:</b>
+</p>
+
+<pre style="width:750px"><code class="js">Joy.add({
+	name: "Move turtle",
+	type: "turtle/forward",
+	tags: ["turtle", "action"],
+	init: "Move forward {id:'steps', type:'number', placeholder:50} steps",
+	onact: function(my){
+		my.target.forward(my.data.steps); // "my.target" will be the turtle
+	}
+});
+
+Joy.add({
+	name: "Turn turtle",
+	type: "turtle/turn",
+	tags: ["turtle", "action"],
+	init: "Turn {id:'angle', type:'number', placeholder:10} degrees",
+	onact: function(my){
+		my.target.turn(my.data.angle);
+	}
+});
+
+Joy.add({
+	name: "Change color",
+	type: "turtle/color",
+	tags: ["turtle", "action"],
+	init: "Change color to {id:'color', type:'color'}",
+	onact: function(my){
+		my.target.setColor(my.data.color);
+	}
+});
+</code></pre>
+
+<p>
+<i>Now</i> we can tell Joy.js how to link up the Joy editor with the Turtle:
+</p>
+
+<pre style="width:750px"><code class="js">Joy({
+	// Where the Joy editor goes:
+	container: "#joy",
+
+	// The words &amp; widgets inside the editor:
+	init: "I'm a turtle! Do the following: "+
+		  "{id:'turtleInstructions', type:'actions'} "+ // a list of actions
+		  "&lt;hr&gt; {type:'save'}", // a save button!
+    
+    // Load data from URL, otherwise blank:
+	data: Joy.loadFromURL(),
+
+	// Other actions to include, beyond turtle actions:
+	modules: ["instructions", "math"],
+
+	// What to do when the user makes a change:
+	onupdate: function(my){
+		turtle.start();
+		my.turtleInstructions.act(turtle);
+		turtle.draw();
+	}
+});
+</code></pre>
+
+<p>
+And there we go! With just "a few" (<i>cough cough yeah right</i>) lines of code,
+we've not only given your game/simulation/model an expressive, easy-to-use 
+end-user programming tool, we've also given your users the ability to
+<b>save and share their creations!</b> Check it out:
+</p>
+
+<iframe src="examples/turtle.html" width="800" height="400"></iframe>
+
+<p>
+// ending (also THIS IS VERSION ZERO, PRETTY CRAPPY -- see "future ideas")
+<br>
+// full source code, and patreon again, THAAAANKS
+</p>
+
+
+<br><br>
+<hr><hr>
+<br><br>
+
+
+<h2>But Wait! There's More...</h2>
+
+<p>
+// Different kinds of widgets<br>
+// previewing actions... (and NOT)<br>
+</p>
+
+</div>
+
+</body>
+</html>
+
+<script src="highlight/highlight.pack.js"></script>
+<script>
+hljs.configure({tabReplace:'    '});
+hljs.initHighlightingOnLoad();
+</script>
