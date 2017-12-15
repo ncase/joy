@@ -16,6 +16,9 @@ pre{
 	line-height: 1.2em;
 }
 
+#content{
+	overflow: hidden;
+}
 #container{
 	width: 1000px;
 	height: 500px;

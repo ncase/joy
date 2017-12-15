@@ -46,17 +46,42 @@ function Music(containerID){
 	container.addEventListener("mousemove", _onmousemove, true);
 
 	// POOL OF SYNTHS
-	var MAX_SYNTHS = 8;
-	self.synthIndex = 0;
+	var MAX_SYNTHS = 16;
+	//self.synthIndex = 0;
 	self.synthPool = [];
 	for(var i=0; i<MAX_SYNTHS; i++){
 		var synth = new Tone.Synth().toMaster();
 		self.synthPool.push(synth);
 	}
-	self.getSynthFromPool = function(){
-		var synth = self.synthPool[self.synthIndex];
-		self.synthIndex = (self.synthIndex+1)%MAX_SYNTHS;
-		return synth;
+	self.getSynthFromPool = function(targetPitch){
+
+		// GET THE CLOSEST SYNTH (or, unused)
+		var closestSynth;
+		var smallestDistance = Infinity;
+		var indexUsed;
+		for(var i=0; i<self.synthPool.length; i++){
+			var synth = self.synthPool[i];
+			var pitch = synth._HACK_PITCH;
+			if(!pitch){ // unused
+				indexUsed = i;
+				closestSynth = synth;
+				break;
+			}
+			var distance = Math.abs(targetPitch - pitch);
+			if(distance < smallestDistance){
+				smallestDistance = distance;
+				indexUsed = i;
+				closestSynth = synth;
+			}
+		}
+
+		closestSynth._HACK_PITCH = targetPitch;
+		return closestSynth;
+
+		//var synth = self.synthPool[self.synthIndex];
+		//self.synthIndex = (self.synthIndex+1)%MAX_SYNTHS;
+		//return synth;
+
 	};
 
 	// Notes
@@ -137,9 +162,9 @@ function Music(containerID){
 				var isActive = (begin<self.currentTime && self.currentTime<end);
 				if(!note.active && isActive){ // START PLAYING!
 
-					var synth = self.getSynthFromPool();
-					var length = note.length - (self.currentTime-begin); // minus already started
 					if(!isNaN(note.pitch)){
+						var synth = self.getSynthFromPool(note.pitch);
+						var length = note.length - (self.currentTime-begin); // minus already started
 						synth.triggerAttackRelease(note.pitch, length);
 					}
 

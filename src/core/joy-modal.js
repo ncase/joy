@@ -48,10 +48,19 @@ modal.show = function(ui){
 	
 	// Position the Box
 	var position = ui.config.position || "below";
-	modal.box.setAttribute("position", position);
 	var boxBounds = modal.box.getBoundingClientRect();
 	var sourceBounds = ui.config.source.getBoundingClientRect();
 	var x,y, margin=20;
+
+	// HACK: IF BELOW & NO SPACE, do LEFT
+	if(position=="below"){
+		var y = sourceBounds.top + sourceBounds.height + margin; // y: bottom
+		if(y+boxBounds.height > document.body.clientHeight){ // below page!
+			position = "left";
+		}
+	}
+
+	modal.box.setAttribute("position", position);
 	switch(position){ // TODO: smarter positioning
 		case "below":
 			var x = sourceBounds.left + sourceBounds.width/2; // x: middle

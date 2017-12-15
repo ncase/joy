@@ -24,7 +24,7 @@ window.onload = function(){
 	// Joy
 	window.joy = Joy({
 		
-		init: "I'm a turtle! Do the following: {id:'turtleInstructions', type:'actions'} <hr> {type:'save'}",
+		init: "I'm a turtle! I do the following: {id:'turtleInstructions', type:'actions'} <hr> {type:'save'}",
 
 		data: data,
 		container: "#editor",
@@ -66,7 +66,7 @@ window.onload = function(){
 Joy.module("turtle", function(){
 
 	Joy.add({
-		name: "Move turtle",
+		name: "Move",
 		type: "turtle/forward",
 		tags: ["turtle", "action"],
 		init: "Move forward {id:'steps', type:'number', min:0, placeholder:50} steps",
@@ -76,19 +76,26 @@ Joy.module("turtle", function(){
 			var param = 1;
 			if(my.data._PREVIEW!==undefined) param=my.data._PREVIEW;
 
-			// Do it!
+			// Move!
 			my.target.forward(my.data.steps*param);
 
 		}
 	});
 
 	Joy.add({
-		name: "Turn turtle",
+		name: "Turn",
 		type: "turtle/turn",
 		tags: ["turtle", "action"],
 		init: "Turn {id:'angle', type:'number', placeholder:10} degrees",
 		onact: function(my){
-			my.target.turn(my.data.angle);
+
+			// Previewing? How much to preview?
+			var param = 1;
+			if(my.data._PREVIEW!==undefined) param=my.data._PREVIEW;
+
+			// Turn!
+			my.target.turn(my.data.angle*param);
+
 		}
 	});
 

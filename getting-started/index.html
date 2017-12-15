@@ -54,6 +54,7 @@ Then, after including Joy.js &amp; its default stylesheet,
           "and colored {id:'color', type:'color'}",
 
     // What to do when the user makes a change:
+    // // TODO: make consistent with .act()
     onupdate: function(my){
         var box = document.getElementById("box");
         box.style.width = my.data.width;
@@ -95,7 +96,7 @@ First, <b>we have to tell Joy.js to create a "widget" for each action the Turtle
 </p>
 
 <pre style="width:750px"><code class="js">Joy.add({
-	name: "Move turtle",
+	name: "Move",
 	type: "turtle/forward",
 	tags: ["turtle", "action"],
 	init: "Move forward {id:'steps', type:'number', placeholder:50} steps",
@@ -105,7 +106,7 @@ First, <b>we have to tell Joy.js to create a "widget" for each action the Turtle
 });
 
 Joy.add({
-	name: "Turn turtle",
+	name: "Turn",
 	type: "turtle/turn",
 	tags: ["turtle", "action"],
 	init: "Turn {id:'angle', type:'number', placeholder:10} degrees",

@@ -71,6 +71,7 @@ window.onload = function(){
 
 			// Iterate
 			var iterations = my.iterations.get();
+			if(iterations>500) iterations=500; // HACK: 500 max
 			for(var i=0; i<iterations; i++){
 				if(stopMessage!="STOP") my.iterate.act(obj);
 				_log(i+1);

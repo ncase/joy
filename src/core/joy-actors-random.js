@@ -39,9 +39,11 @@ Joy.module("random", function(){
 			var min = Math.min(_min,_max); // just in case
 			var max = Math.max(_min,_max); // just in case
 
-			var randomValue = min + (Math.random()*(max-min));
+			var randomValue;
 			if(my.data.numtype=="integer"){
-				randomValue = Math.round(randomValue);
+				randomValue = min + Math.floor( Math.random()*((max-min)+1) );
+			}else{
+				randomValue = min + (Math.random()*(max-min));
 			}
 			_variables[varname] = randomValue; // Set the variable
 

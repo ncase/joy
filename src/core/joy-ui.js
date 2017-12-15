@@ -17,6 +17,37 @@ ui.init = function(master){
 		return false;
 	});
 
+	// Prevent accidental backspace-history
+	// because why the heck is this even a thing, jeez.
+	// thx: https://stackoverflow.com/a/2768256
+	document.body.addEventListener('keydown', function(event){
+	    if(event.keyCode === 8) {
+	        var doPrevent = true;
+	        var types = ["text", "password", "file", "search", "email", "number", "date", "color", "datetime", "datetime-local", "month", "range", "search", "tel", "time", "url", "week"];
+	        var d = event.srcElement || event.target;
+	        var disabled = d.getAttribute("readonly") || d.getAttribute("disabled");
+	        if (!disabled) {
+	            if (d.isContentEditable) {
+	                doPrevent = false;
+	            } else if (d.tagName.toUpperCase() == "INPUT") {
+	                var type = d.getAttribute("type");
+	                if (type) {
+	                    type = type.toLowerCase();
+	                }
+	                if (types.indexOf(type) > -1) {
+	                    doPrevent = false;
+	                }
+	            } else if (d.tagName.toUpperCase() == "TEXTAREA") {
+	                doPrevent = false;
+	            }
+	        }
+	        if (doPrevent) {
+	            event.preventDefault();
+	            return false;
+	        }
+	    }
+	});
+
 };
 
 /********************

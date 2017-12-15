@@ -237,9 +237,16 @@ Joy.module("math", function(){
 					// If it's NOT an operand, clicking it reveals options
 					if(chainActor.type!="choose"){
 						(function(ca){
-							ca.dom.addEventListener("click", function(){
-								_showChooser(ca);
-								// TODO: wasDragging
+							// HACK: click, NOT scrub. detect w/ time frame
+							var _mouseDownTime;
+							ca.dom.addEventListener("mousedown", function(){
+								_mouseDownTime = +(new Date());
+							});
+							ca.dom.addEventListener("mouseup", function(){
+								var _time = +(new Date());
+								if(_time-_mouseDownTime < 500){
+									_showChooser(ca); // if clicked in less than a half second
+								}
 							});
 						})(chainActor);
 					}
@@ -380,7 +387,9 @@ Joy.module("math", function(){
 
 				////////////////
 
-				var result;
+				var nums_and_ops = []; // just gets chain of nums & ops
+
+				// EVALUATE EACH ELEMENT FIRST
 				for(var i=0; i<my.data.chain.length; i+=2){
 
 					// Synched indices!
@@ -399,25 +408,70 @@ Joy.module("math", function(){
 							break; 
 					}
 
-					// First one: Result's just num
-					if(i==0){
-						result = num;
-					}else{
-						// Evaluate operand & run it
+					// Any operator before it?
+					if(i>0){
 						var operandActor = my.actor.chainActors[i-1];
 						var op = operandActor.get();
-						switch(op){
-							case "+": result+=num; break;
-							case "-": result-=num; break;
-							case "*": result*=num; break;
-							case "/": result/=num; break;
-						}
+						nums_and_ops.push(op);
 					}
 
-					// TODO: ORDER OF OPERATIONS, I GUESS.
+					// Push num
+					nums_and_ops.push(num);
 
 				}
-				return result;
+
+				// MULTIPLICATION AND DIVISION FIRST. LEFT-ASSOCIATIVE
+				for(var i=1; i<nums_and_ops.length; i+=2){
+
+					var op = nums_and_ops[i];
+					if(op=="*" || op=="/"){
+
+						// Do math to the two numbers
+						var num1 = nums_and_ops[i-1];
+						var num2 = nums_and_ops[i+1];
+						var res;
+						if(op=="*") res = num1*num2;
+						else res = num1/num2;
+
+						// Modify array, and set index back
+						// remove 3 items: num1, op, num2
+						// replace with 1 item: result
+						nums_and_ops.splice(i-1, 3, res);
+						i-=2;
+
+					}else{
+						continue;
+					}
+
+				}
+
+				// NOW DO ADDITION AND SUBTRACTION
+				for(var i=1; i<nums_and_ops.length; i+=2){
+
+					var op = nums_and_ops[i];
+					if(op=="+" || op=="-"){
+
+						// Do math to the two numbers
+						var num1 = nums_and_ops[i-1];
+						var num2 = nums_and_ops[i+1];
+						var res;
+						if(op=="+") res = num1+num2;
+						else res = num1-num2;
+
+						// Modify array, and set index back
+						// remove 3 items: num1, op, num2
+						// replace with 1 item: result
+						nums_and_ops.splice(i-1, 3, res);
+						i-=2;
+
+					}else{
+						continue;
+					}
+
+				}
+
+				return nums_and_ops[0];
+
 			}
 		};
 	});

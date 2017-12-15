@@ -212,8 +212,8 @@ Joy.add({
 				// Add in a style
 				_previewStyle = document.createElement("style");
 				document.head.appendChild(_previewStyle);
-				_previewStyle.sheet.addRule('.joy-actions.joy-previewing > #joy-list > div:nth-child(n+'+(actionIndex+2)+')','opacity:0.1');
-				_previewStyle.sheet.addRule('.joy-actions.joy-previewing > div.joy-bullet','opacity:0.1');
+				_previewStyle.sheet.insertRule('.joy-actions.joy-previewing > #joy-list > div:nth-child(n+'+(actionIndex+2)+') { opacity:0.1; }');
+				_previewStyle.sheet.insertRule('.joy-actions.joy-previewing > div.joy-bullet { opacity:0.1; }');
 				dom.classList.add("joy-previewing");
 
 			};

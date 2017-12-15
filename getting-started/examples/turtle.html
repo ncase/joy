@@ -16,6 +16,7 @@
 	}
 	#joy{
 		background: #eee;
+		overflow: scroll;
 	}
 	hr{
 		border: none;
@@ -44,7 +45,7 @@ document.querySelector("#turtle").appendChild(turtle.canvas);
 
 // JOY ACTIONS
 Joy.add({
-	name: "Move turtle",
+	name: "Move",
 	type: "turtle/forward",
 	tags: ["turtle", "action"],
 	init: "Move forward {id:'steps', type:'number', placeholder:50} steps",
@@ -53,7 +54,7 @@ Joy.add({
 	}
 });
 Joy.add({
-	name: "Turn turtle",
+	name: "Turn",
 	type: "turtle/turn",
 	tags: ["turtle", "action"],
 	init: "Turn {id:'angle', type:'number', placeholder:10} degrees",
@@ -77,7 +78,7 @@ Joy({
 	container: "#joy",
 
 	// The words &amp; widgets inside the editor:
-	init: "I'm a turtle! Do the following: "+
+	init: "I'm a turtle! I do the following: "+
 		  "{id:'turtleInstructions', type:'actions'} "+ // a list of actions
 		  "<hr> {type:'save'}", // a save button!
     
