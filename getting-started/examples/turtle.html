@@ -3,10 +3,15 @@
 <head>
 	<link rel="stylesheet" href="../../dist/joy.css">
 	<style>
+	@font-face{
+		font-family: 'FuturaHandwritten';
+		font-style: normal;
+		src: url('FuturaHandwritten.ttf') format('truetype');
+	}
 	body{
 		margin: 0;
 		font-size: 20px;
-		font-family: Helvetica, Arial, sans-serif;
+		font-family: 'FuturaHandwritten';
 		font-weight: 100;
 		line-height: 1.7em;
 	}
@@ -23,6 +28,18 @@
 		border-bottom: 2px dashed #ccc;
 		margin: 1.5em 0;
 	}
+	.cursor-grab{
+		cursor: -webkit-grab;
+		cursor: -moz-grab;
+		cursor: -ms-grab;
+		cursor: grab;
+	}
+	.cursor-grabbing{
+		cursor: -webkit-grabbing;
+		cursor: -moz-grabbing;
+		cursor: -ms-grabbing;
+		cursor: grabbing;
+	}
 	</style>
 </head>
 <body>
@@ -31,15 +48,15 @@
 </body>
 </html>
 
-<script src="../../dist/joy.min.js"></script>
+<script src="../../dist/joy.js"></script>
 <script src="Turtle.js"></script>
 <script>
 
 // TURTLE
+var data = Joy.loadFromURL();
 window.turtle = new Turtle({
 	width:400, height:400,
-	doNotDrag: true,
-	data: Joy.loadFromURL()
+	data: data
 });
 document.querySelector("#turtle").appendChild(turtle.canvas);
 
@@ -48,11 +65,16 @@ Joy.add({
 	name: "Move",
 	type: "turtle/forward",
 	tags: ["turtle", "action"],
+
+	// What the action does is EMBEDDED IN A PLAIN-LANGUAGE SENTENCE
 	init: "Move forward {id:'steps', type:'number', placeholder:50} steps",
+
+	// Callback
 	onact: function(my){
 		my.target.forward(my.data.steps); // "my.target" will be the turtle
 	}
 });
+
 Joy.add({
 	name: "Turn",
 	type: "turtle/turn",
@@ -62,6 +84,7 @@ Joy.add({
 		my.target.turn(my.data.angle);
 	}
 });
+
 Joy.add({
 	name: "Change color",
 	type: "turtle/color",
@@ -73,7 +96,7 @@ Joy.add({
 });
 
 // JOY
-Joy({
+window.joy = Joy({
 	// Where the Joy editor goes:
 	container: "#joy",
 
@@ -83,7 +106,7 @@ Joy({
 		  "<hr> {type:'save'}", // a save button!
     
     // Load data from URL, otherwise blank:
-	data: Joy.loadFromURL(),
+	data: data,
 
 	// Other actions to include, beyond turtle actions:
 	modules: ["instructions", "math"],
@@ -95,5 +118,10 @@ Joy({
 		turtle.draw();
 	}
 });
+
+// P.S: Dragging the turtle around...
+turtle.ondrag = function(){
+	joy.update();
+};
 
 </script>

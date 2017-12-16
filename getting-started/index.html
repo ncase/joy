@@ -7,18 +7,24 @@
 </head>
 <body>
 
+<!-- Github Corner by http://tholman.com/github-corners/ -->
+<a href="https://github.com/ncase/joy" class="github-corner" aria-label="View source on Github"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: fixed; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
 <div id="content">
 
-<h1>Getting Started with JOY.js</h1>
+<h1>Getting Started with Joy.js</h1>
+
+<div style="width:220px; font-size:0.6em; line-height:1.3em; position:absolute; top:-0.3em; right:0">
+(pst... this page is for developers.
+if you just want to play with Joy.js in action,
+<a href="../#examples">check out these examples!</a>)
+</div>
 
 <p>
-// (for developers. for players, check out examples)
-</p>
-
-<p>
-1) Download Joy.js
+1) <a href="../dist/joy.min.js" target="_blank">Download Joy.js</a>
+(<a href="../dist/joy.js" target="_blank">unminified</a>)
 <br>
-2) Download Joy's default style sheet
+2) <a href="../dist/joy.css" target="_blank">Download Joy's default stylesheet</a>
 <br>
 3) Include both of them in your .html file
 <br>
@@ -37,7 +43,7 @@ Let's say we want to let the user modify a box. First, we make the html:
 </code></pre>
 
 <p>
-...where "joy" is where the Joy editor goes, and "box" is the &lt;div&gt; your user can modify using Joy.
+...where "joy" is the container for the Joy editor, and "box" is what your user can edit.
 Then, after including Joy.js &amp; its default stylesheet,
 <b>we tell Joy.js how to link up the editor &amp; the box:</b>
 </p>
@@ -46,15 +52,14 @@ Then, after including Joy.js &amp; its default stylesheet,
     // Where the Joy editor goes:
     container: "#joy",
 
-    // The words &amp; widgets inside the editor:
+    // The words &amp; actors inside the editor:
     init: "Make the box "+
-          // Define widgets with JSON/object-literal notation:
+          // Define actors with JSON/object-literal notation:
           "{id:'width', type:'number', placeholder:50}px wide, "+
           "{id:'height', type:'number', placeholder:50}px tall, "+
           "and colored {id:'color', type:'color'}",
 
     // What to do when the user makes a change:
-    // // TODO: make consistent with .act()
     onupdate: function(my){
         var box = document.getElementById("box");
         box.style.width = my.data.width;
@@ -71,6 +76,9 @@ then click/drag to actually change the box:
 </p>
 
 <iframe src="examples/box.html" width="800" height="300"></iframe>
+<div class="code_for_example">
+<a target="_blank" href="https://github.com/ncase/joy/blob/master/getting-started/examples/box.html">see full code for this example on github</a>
+</div>
 
 <p>
 Yeah not exactly Turing Award-winning material there, but that's just a basic example.
@@ -86,20 +94,24 @@ which for non-programmers is a huge barrier,
 and even <i>for</i> programmers, still isn't live, direct, or explorative as it <i>could</i> be. 
 </p>
 
-<p>
-// load code example...
+<p style="text-align:center">
+<img src="AHHH.png" width="487"/>
 </p>
 
 <p>
 That's where Joy.js comes to the rescue!
-First, <b>we have to tell Joy.js to create a "widget" for each action the Turtle can take:</b>
+First, <b>we have to tell Joy.js to create an "actor" for each action the Turtle can take:</b>
 </p>
 
 <pre style="width:750px"><code class="js">Joy.add({
 	name: "Move",
 	type: "turtle/forward",
 	tags: ["turtle", "action"],
+
+	// What the action does is EMBEDDED IN A PLAIN-LANGUAGE SENTENCE
 	init: "Move forward {id:'steps', type:'number', placeholder:50} steps",
+
+	// Callback
 	onact: function(my){
 		my.target.forward(my.data.steps); // "my.target" will be the turtle
 	}
@@ -134,7 +146,7 @@ Joy.add({
 	// Where the Joy editor goes:
 	container: "#joy",
 
-	// The words &amp; widgets inside the editor:
+	// The words &amp; actors inside the editor:
 	init: "I'm a turtle! Do the following: "+
 		  "{id:'turtleInstructions', type:'actions'} "+ // a list of actions
 		  "&lt;hr&gt; {type:'save'}", // a save button!
@@ -162,25 +174,215 @@ end-user programming tool, we've also given your users the ability to
 </p>
 
 <iframe src="examples/turtle.html" width="800" height="400"></iframe>
+<div class="code_for_example">
+<a target="_blank" href="https://github.com/ncase/joy/blob/master/getting-started/examples/turtle.html">see full code for this example on github</a>
+</div>
 
 <p>
-// ending (also THIS IS VERSION ZERO, PRETTY CRAPPY -- see "future ideas")
+And that's more or less it!  Note: <b>this is only "version zero" of Joy.js</b>,
+and honestly it's a bit of a code mess, and still missing a lot of features...
+(undo/redo, functions, advanced math, etc)
+...but hey, it's a start(?)
+</p>
+<p>
+You can get the full source code for Joy.js &amp; examples 
+<a href="https://github.com/ncase/joy">on GitHub.</a>
 <br>
-// full source code, and patreon again, THAAAANKS
+Joy.js was funded by my generous fans 
+<a href="https://www.patreon.com/ncase">on Patreon!</a>
+</p>
+<p>
+I hope Joy.js can still help you make fun, accessible tools,
+and that your users will delight in making happy little programs!
+</p>
+<p>
+<b>&lt;3,</b>
+<br>
+~ Nicky Case
 </p>
 
+<br>
+<hr>
+<br>
 
-<br><br>
-<hr><hr>
-<br><br>
-
-
-<h2>But Wait! There's More...</h2>
+<h2>API Reference:</h2>
 
 <p>
-// Different kinds of widgets<br>
-// previewing actions... (and NOT)<br>
+You're still here? Well, ok, here's the full API for Joy.js.
+But, first off, sorry it's so messy.
+Honestly, I'd recommend you just check out the code for
+<a href="../#examples">the examples</a>
+instead,
+so you can see the code running in context. And then copy/paste what you need,
+and slap it all together until you get something running.
 </p>
+
+<p>
+But, if you should still like to brave ahead, here's a reference
+of every feature and option that's currently possible in Joy.js:
+</p>
+
+<h3>The Main JOY Editor:</h3>
+
+<pre style="width:750px"><code class="js">// Joy returns a joy object
+var joy = Joy({
+
+	// Where the Joy editor should go:
+	// (you can pass a query string, or DOM element)
+	container: "#joy",
+
+	// The words &amp; actors inside the editor:
+	init: "blah blah {id:'number', type:'number'} "+
+		  "blah blah {id:'actions', type:'actions'}",
+    
+    // Load data from URL, otherwise blank:
+    // (If you leave out this option, it just makes a blank data object)
+	data: Joy.loadFromURL(),
+
+	// Modules of "actions" to include, in order you want them shown
+	modules: ["instructions", "math", "random"],
+
+	// Optional: whether you want users to be able to preview numbers
+	// or actions when they hover over them. (by default, true for both)
+	previewActions: true,
+	previewNumbers: true,
+
+	// What to do when the user makes a change:
+	onupdate: function(my){
+		// The "my" object contains references to data &amp; actors
+		// for example...
+		my.data.number; // the number in the editor
+		my.actions.act(target); // get the "actions" actor, act on target
+		my.actor; // the Joy editor itself (you'll likely never need this)
+	}
+});
+</code></pre>
+
+<h3>JOY Modules:</h3>
+
+<p>
+Here are the pre-installed modules that come with Joy.js (version zero):
+</p>
+
+<p>
+<b>"instructions":</b> for loops, //comments
+<br>
+<b>"math":</b> setting variables, doing basic math, if/thens with number (in)equality
+<br>
+<b>"random":</b> if/then with random chance, setting a random number
+</p>
+
+<p>
+And to create your OWN module, you do this:
+</p>
+
+<pre style="width:750px"><code class="js">// Replace "turtle" with the name of your module
+Joy.module("turtle", function(){
+	// The actors to be added inside your module
+	Joy.add({
+		name: "Move",
+		// etc etc...
+	});
+	Joy.add({
+		name: "Turn",
+		// etc etc...
+	});
+	Joy.add({
+		name: "Change color",
+		// etc etc...
+	});
+});
+</code></pre>
+
+<p>
+Just remember to include your module when you instantiate the main Joy editor!
+</p>
+
+
+<h3>JOY Actors:</h3>
+
+<p>
+"Actors" are the core of Joy.js &mdash; they manage the relationship
+between the data, the editor, and the running code.
+</p>
+
+<p>
+Here are some actors you can use in your main Joy editor,
+or inside <i>other</i> actors!
+</p>
+
+<pre style="width:800px; font-size:13px"><code class="js">Joy({
+
+// The words &amp; actors inside the editor:
+// (note: all parameters except id &amp; type are optional)
+
+init: "A number: {id:'number', type:'number', min:1, max:100, placeholder:50, noVariables:false}"+
+	  // "noVariables" means you can't plug variables into this number. By default, false 
+
+	  "A color: {id:'color', type:'color', placeholder:[0, 0.8, 1.0]}"+
+	  // the placeholder color has to be in [hue, saturation, value] format. By default, random
+
+	  "A choice: {id:'choose', type:'choose', options:['a','b','c'], placeholder:'a'}"+
+	  // "options" can also be [{label:"a", value:1}, {label:"b", value:2}, ...]
+
+	  "A string: {id:'string', type:'string', prefix:'&ldquo;', suffix:'&rdquo;', color:'#ffd0d0'}"+
+	  // "prefix" and "suffix" let you put quotes or whatever around the string input
+
+	  "Actions: {id:'actions', type:'actions'}"+
+	  // Gives you a programmable list of actions 
+
+	  "Save Data: {type:'save'}",
+	  // Makes a save & share button. No "id" needed!
+
+// etc, etc...
+
+});
+</code></pre>
+
+<p>
+And here's how you make your OWN actor:
+</p>
+
+<pre style="width:750px"><code class="js">Joy.add({
+
+	// The label you'll see in the Actions editor
+	name: "Move",
+
+	// Metadata
+	// Note: you MUST add "action" tag to use in Actions editor
+	type: "turtle/forward", // make sure this is unique
+	tags: ["turtle", "action"],
+
+	// Two ways to initialize an actor...
+	// 1) just a string
+	init: "Move forward {id:'steps', type:'number', placeholder:50} steps",
+	// 2) as two functions (ADVANCED FEATURE. YOU LIKELY WON'T NEED THIS)
+	init: function(self){
+		// for you to implement
+	},
+	initWidget: function(self){
+		// runs this to create the DOM for the editor
+		// must create a DOM element in self.dom
+	},
+
+	// Callback
+	onact: function(my){
+		// my.target = target you passed in when you called actions.act()
+		// my.data = data that this actor is editing
+		// my.actor = the actor itself
+		my.target.forward(my.data.steps);
+	}
+
+});
+</code></pre>
+
+<p>
+Again, just look at
+<a href="../#examples">the examples</a>
+and
+<a href="https://github.com/ncase/joy">their code</a>. Good luck!
+</p>
+
 
 </div>
 

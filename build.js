@@ -15,7 +15,8 @@ var files = [
 	"src/core/joy-actors-actions.js",
 	"src/core/joy-actors-instructions.js",
 	"src/core/joy-actors-vars.js",
-	"src/core/joy-actors-math.js"
+	"src/core/joy-actors-math.js",
+	"src/core/joy-actors-random.js"
 ]
 var js = "";
 for(var i=0; i<files.length; i++){
@@ -25,7 +26,12 @@ for(var i=0; i<files.length; i++){
 // Minify & write it
 fs.writeFileSync("dist/joy.js", js, 'utf8');
 var result = UglifyJS.minify(js);
-fs.writeFileSync("dist/joy.min.js", result.code, 'utf8');
+var file = "/*****************\n\n"+
+"JOY.js: make happy little programs\n\n"+
+"VERSION 0 (the incredibly clunky first version) (sorry)\n\n"+
+"Created by Nicky Case http://ncase.me/\n\n"+
+"*****************/\n"+result.code;
+fs.writeFileSync("dist/joy.min.js", file, 'utf8');
 
 // Also copy joy.css to dist.
 var css = fs.readFileSync("src/css/joy.css", 'utf8');

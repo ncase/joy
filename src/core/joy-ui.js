@@ -107,6 +107,11 @@ ui.ChooserButton = function(config){
 	self.options = config.options; // expose, coz may change later
 	self.onchange = config.onchange;
 
+	// IF NO VALUE, PICK FIRST ONE, WHATEVER
+	if(!self.value){
+		self.value = self.options[0].value;
+	}
+
 	// This is just a Button that calls Chooser Popup when clicked
 	ui.Button.call(self, {
 		label: (config.staticLabel===undefined) ? "" : config.staticLabel,

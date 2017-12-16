@@ -58,7 +58,7 @@ window.onload = function(){
 
 			// TOTAL HACK BUT W/E
 			music.label = "";
-			if(my.activePreview && my.activePreview.type=="actions"){
+			if(my.actor.activePreview && my.actor.activePreview.type=="actions"){
 				var label = "";
 				for(var key in music._variables){
 					var value = music._variables[key];

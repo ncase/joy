@@ -41,7 +41,7 @@ window.onload = function(){
 			turtle.draw();
 
 			// TOTAL HACK BUT W/E
-			if(my.activePreview && my.activePreview.type=="actions"){
+			if(my.actor.activePreview && my.actor.activePreview.type=="actions"){
 				var label = "";
 				for(var key in turtle._variables){
 					var value = turtle._variables[key];

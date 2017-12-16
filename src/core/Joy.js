@@ -1,27 +1,10 @@
 /*****************
 
-JOY.js: easy, expressive end-user programming
+JOY.js: make happy little programs
 
-The JOY Architecture:
-     [ ACTORS ]
-    /    |     \
- Player Editor  Data
+VERSION 0 (the incredibly clunky first version) (sorry)
 
-The Player, Editor & Data DO NOT TALK DIRECTLY TO EACH OTHER.
-I REPEAT: THEY SHOULD NEVER, EVER TALK DIRECTLY TO EACH OTHER.
-(This lets them all be modular and separate!)
-
-At the top layer is the JOY MASTER. You just pass in a template, like so:
-{
-	init: "Do this: {name:'instructions', type:'actions'}",
-	data: data,
-	allowPreview: true,
-	container: "#editor",
-	modules: ["turtle", "logic"],
-	onupdate: function(my){
-		my.instructors.act(target);
-	}
-}
+Created by Nicky Case http://ncase.me/
 
 *****************/
 
@@ -67,6 +50,33 @@ function Joy(options){
 	Joy.modal.init(self);
 
 	// Update!
+	self.onupdate = self.onupdate || function(my){};
+	self.update = function(){
+
+		// Create a fake "my" 
+		var my = {
+			actor: self,
+			data: {}
+		};
+
+		// Try to pre-evaluate all data beforehand!
+		self.children.forEach(function(childActor){
+			var dataID = childActor.dataID;
+			if(dataID){
+				var value = childActor.get();
+				my.data[dataID] = value;
+			}
+		});
+
+		// Aliases to all children too, though
+		self.children.forEach(function(child){
+			if(child.id) my[child.id] = child;
+		});
+
+		// On Update!
+		self.onupdate(my);
+
+	};
 	self.update();
 
 	// Return to sender

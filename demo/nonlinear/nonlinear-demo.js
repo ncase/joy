@@ -50,7 +50,7 @@ window.onload = function(){
 						};
 						// Color this line? Only if it's in _graph!
 						if(graph[thingName]){
-							line.color = _HSVToRGBString(Joy.getReferenceById(my, graph[thingName]).data.color);
+							line.color = _HSVToRGBString(Joy.getReferenceById(my.actor, graph[thingName]).data.color);
 						}
 						lines.push(line);
 					}

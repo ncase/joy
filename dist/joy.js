@@ -1,27 +1,10 @@
 /*****************
 
-JOY.js: easy, expressive end-user programming
+JOY.js: make happy little programs
 
-The JOY Architecture:
-     [ ACTORS ]
-    /    |     \
- Player Editor  Data
+VERSION 0 (the incredibly clunky first version) (sorry)
 
-The Player, Editor & Data DO NOT TALK DIRECTLY TO EACH OTHER.
-I REPEAT: THEY SHOULD NEVER, EVER TALK DIRECTLY TO EACH OTHER.
-(This lets them all be modular and separate!)
-
-At the top layer is the JOY MASTER. You just pass in a template, like so:
-{
-	init: "Do this: {name:'instructions', type:'actions'}",
-	data: data,
-	allowPreview: true,
-	container: "#editor",
-	modules: ["turtle", "logic"],
-	onupdate: function(my){
-		my.instructors.act(target);
-	}
-}
+Created by Nicky Case http://ncase.me/
 
 *****************/
 
@@ -67,6 +50,33 @@ function Joy(options){
 	Joy.modal.init(self);
 
 	// Update!
+	self.onupdate = self.onupdate || function(my){};
+	self.update = function(){
+
+		// Create a fake "my" 
+		var my = {
+			actor: self,
+			data: {}
+		};
+
+		// Try to pre-evaluate all data beforehand!
+		self.children.forEach(function(childActor){
+			var dataID = childActor.dataID;
+			if(dataID){
+				var value = childActor.get();
+				my.data[dataID] = value;
+			}
+		});
+
+		// Aliases to all children too, though
+		self.children.forEach(function(child){
+			if(child.id) my[child.id] = child;
+		});
+
+		// On Update!
+		self.onupdate(my);
+
+	};
 	self.update();
 
 	// Return to sender
@@ -874,6 +884,37 @@ ui.init = function(master){
 		return false;
 	});
 
+	// Prevent accidental backspace-history
+	// because why the heck is this even a thing, jeez.
+	// thx: https://stackoverflow.com/a/2768256
+	document.body.addEventListener('keydown', function(event){
+	    if(event.keyCode === 8) {
+	        var doPrevent = true;
+	        var types = ["text", "password", "file", "search", "email", "number", "date", "color", "datetime", "datetime-local", "month", "range", "search", "tel", "time", "url", "week"];
+	        var d = event.srcElement || event.target;
+	        var disabled = d.getAttribute("readonly") || d.getAttribute("disabled");
+	        if (!disabled) {
+	            if (d.isContentEditable) {
+	                doPrevent = false;
+	            } else if (d.tagName.toUpperCase() == "INPUT") {
+	                var type = d.getAttribute("type");
+	                if (type) {
+	                    type = type.toLowerCase();
+	                }
+	                if (types.indexOf(type) > -1) {
+	                    doPrevent = false;
+	                }
+	            } else if (d.tagName.toUpperCase() == "TEXTAREA") {
+	                doPrevent = false;
+	            }
+	        }
+	        if (doPrevent) {
+	            event.preventDefault();
+	            return false;
+	        }
+	    }
+	});
+
 };
 
 /********************
@@ -932,6 +973,11 @@ ui.ChooserButton = function(config){
 	self.value = config.value;
 	self.options = config.options; // expose, coz may change later
 	self.onchange = config.onchange;
+
+	// IF NO VALUE, PICK FIRST ONE, WHATEVER
+	if(!self.value){
+		self.value = self.options[0].value;
+	}
 
 	// This is just a Button that calls Chooser Popup when clicked
 	ui.Button.call(self, {
@@ -1368,10 +1414,19 @@ modal.show = function(ui){
 	
 	// Position the Box
 	var position = ui.config.position || "below";
-	modal.box.setAttribute("position", position);
 	var boxBounds = modal.box.getBoundingClientRect();
 	var sourceBounds = ui.config.source.getBoundingClientRect();
 	var x,y, margin=20;
+
+	// HACK: IF BELOW & NO SPACE, do LEFT
+	if(position=="below"){
+		var y = sourceBounds.top + sourceBounds.height + margin; // y: bottom
+		if(y+boxBounds.height > document.body.clientHeight){ // below page!
+			position = "left";
+		}
+	}
+
+	modal.box.setAttribute("position", position);
 	switch(position){ // TODO: smarter positioning
 		case "below":
 			var x = sourceBounds.left + sourceBounds.width/2; // x: middle
@@ -2362,8 +2417,8 @@ Joy.add({
 				// Add in a style
 				_previewStyle = document.createElement("style");
 				document.head.appendChild(_previewStyle);
-				_previewStyle.sheet.addRule('.joy-actions.joy-previewing > #joy-list > div:nth-child(n+'+(actionIndex+2)+')','opacity:0.1');
-				_previewStyle.sheet.addRule('.joy-actions.joy-previewing > div.joy-bullet','opacity:0.1');
+				_previewStyle.sheet.insertRule('.joy-actions.joy-previewing > #joy-list > div:nth-child(n+'+(actionIndex+2)+') { opacity:0.1; }');
+				_previewStyle.sheet.insertRule('.joy-actions.joy-previewing > div.joy-bullet { opacity:0.1; }');
 				dom.classList.add("joy-previewing");
 
 			};
@@ -2965,9 +3020,16 @@ Joy.module("math", function(){
 					// If it's NOT an operand, clicking it reveals options
 					if(chainActor.type!="choose"){
 						(function(ca){
-							ca.dom.addEventListener("click", function(){
-								_showChooser(ca);
-								// TODO: wasDragging
+							// HACK: click, NOT scrub. detect w/ time frame
+							var _mouseDownTime;
+							ca.dom.addEventListener("mousedown", function(){
+								_mouseDownTime = +(new Date());
+							});
+							ca.dom.addEventListener("mouseup", function(){
+								var _time = +(new Date());
+								if(_time-_mouseDownTime < 500){
+									_showChooser(ca); // if clicked in less than a half second
+								}
 							});
 						})(chainActor);
 					}
@@ -3108,7 +3170,9 @@ Joy.module("math", function(){
 
 				////////////////
 
-				var result;
+				var nums_and_ops = []; // just gets chain of nums & ops
+
+				// EVALUATE EACH ELEMENT FIRST
 				for(var i=0; i<my.data.chain.length; i+=2){
 
 					// Synched indices!
@@ -3127,25 +3191,70 @@ Joy.module("math", function(){
 							break; 
 					}
 
-					// First one: Result's just num
-					if(i==0){
-						result = num;
-					}else{
-						// Evaluate operand & run it
+					// Any operator before it?
+					if(i>0){
 						var operandActor = my.actor.chainActors[i-1];
 						var op = operandActor.get();
-						switch(op){
-							case "+": result+=num; break;
-							case "-": result-=num; break;
-							case "*": result*=num; break;
-							case "/": result/=num; break;
-						}
+						nums_and_ops.push(op);
 					}
 
-					// TODO: ORDER OF OPERATIONS, I GUESS.
+					// Push num
+					nums_and_ops.push(num);
 
 				}
-				return result;
+
+				// MULTIPLICATION AND DIVISION FIRST. LEFT-ASSOCIATIVE
+				for(var i=1; i<nums_and_ops.length; i+=2){
+
+					var op = nums_and_ops[i];
+					if(op=="*" || op=="/"){
+
+						// Do math to the two numbers
+						var num1 = nums_and_ops[i-1];
+						var num2 = nums_and_ops[i+1];
+						var res;
+						if(op=="*") res = num1*num2;
+						else res = num1/num2;
+
+						// Modify array, and set index back
+						// remove 3 items: num1, op, num2
+						// replace with 1 item: result
+						nums_and_ops.splice(i-1, 3, res);
+						i-=2;
+
+					}else{
+						continue;
+					}
+
+				}
+
+				// NOW DO ADDITION AND SUBTRACTION
+				for(var i=1; i<nums_and_ops.length; i+=2){
+
+					var op = nums_and_ops[i];
+					if(op=="+" || op=="-"){
+
+						// Do math to the two numbers
+						var num1 = nums_and_ops[i-1];
+						var num2 = nums_and_ops[i+1];
+						var res;
+						if(op=="+") res = num1+num2;
+						else res = num1-num2;
+
+						// Modify array, and set index back
+						// remove 3 items: num1, op, num2
+						// replace with 1 item: result
+						nums_and_ops.splice(i-1, 3, res);
+						i-=2;
+
+					}else{
+						continue;
+					}
+
+				}
+
+				return nums_and_ops[0];
+
 			}
 		};
 	});
@@ -3248,6 +3357,59 @@ Joy.module("math", function(){
 				var message = my.actor.actions.act(my.target);
 				if(message=="STOP") return message; // STOP
 			}
+
+		}
+	});
+
+});
+Joy.module("random", function(){
+
+	Joy.add({
+		name: "With a X% chance...",
+		type: "random/if",
+		tags: ["random", "action"],
+		init: "With a {id:'chance', type:'number', min:0, max:100, placeholder:50}% chance, do:"+
+			  "{id:'actions', type:'actions', resetVariables:false}",
+		onact: function(my){
+			
+			var probability = my.data.chance/100;
+			if(Math.random() < probability){
+				var message = my.actor.actions.act(my.target);
+				if(message=="STOP") return message; // STOP
+			}
+
+		}
+	});
+
+	/****************
+
+	Set a variable to some number.
+
+	****************/
+	Joy.add({
+		name: "Set random [number]",
+		type: "random/set",
+		tags: ["random", "action"],
+		init: "Set {id:'varname', type:'variableName', variableType:'number'} to a random "+
+			  "{id:'numtype', type:'choose', options:['number','integer'], placeholder:'number'} between "+
+			  "{id:'min', type:'number', placeholder:1} and {id:'max', type:'number', placeholder:100}",
+		onact: function(my){
+
+			var _variables = my.target._variables;
+			var varname = my.data.varname; // it's just a synchronized string
+
+			var _min = my.data.min;
+			var _max = my.data.max;
+			var min = Math.min(_min,_max); // just in case
+			var max = Math.max(_min,_max); // just in case
+
+			var randomValue;
+			if(my.data.numtype=="integer"){
+				randomValue = min + Math.floor( Math.random()*((max-min)+1) );
+			}else{
+				randomValue = min + (Math.random()*(max-min));
+			}
+			_variables[varname] = randomValue; // Set the variable
 
 		}
 	});

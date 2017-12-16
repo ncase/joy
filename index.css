@@ -23,10 +23,10 @@ body{
 	background: hsl(200, 15%, 12%);
 	color: #eee;
 }
-.dark_background a{
+a{
 	color: hsl(322, 84%, 70%);
 }
-.dark_background a:hover{
+a:hover{
 	color: hsl(322, 84%, 80%);
 }
 

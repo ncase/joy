@@ -8,6 +8,7 @@ body{
 #content{
 	width:800px;
 	margin:80px auto;
+	position: relative;
 }
 iframe{
 	border: 2px solid #ddd;
@@ -19,4 +20,15 @@ pre{
 hr{
 	border:none;
 	border-bottom: 2px solid #ccc;
+}
+
+a{
+	color: hsl(322, 84%, 70%);
+}
+a:hover{
+	color: hsl(322, 84%, 80%);
+}
+.code_for_example{
+	font-size: 0.8em;
+	text-align: right;
 }
