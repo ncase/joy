@@ -4,28 +4,24 @@
 
 	<title>JOY.JS - make happy little programs</title>
 
-	<!-- TRANSLATE: 'name' and 'description' -->
-	<meta itemprop="name" content="JOY.js (DEMO)">
+	<!-- Social Card Shtuff -->
+	<meta itemprop="name" content="JOY.JS">
 	<meta itemprop="description" content="make happy little programs">
 	<meta itemprop="image" content="http://ncase.me/joy/social/thumbnail.png">
-
-	<!-- TRANSLATE: 'twitter:title' and 'twitter:description' -->
 	<meta name="twitter:card" content="summary_large_image">
 	<meta name="twitter:site" content="@ncasenmare">
-	<meta name="twitter:title" content="JOY.js (DEMO)">
+	<meta name="twitter:title" content="JOY.JS">
 	<meta name="twitter:description" content="make happy little programs">
 	<meta name="twitter:creator" content="@ncasenmare">
 	<meta name="twitter:image" content="http://ncase.me/joy/social/thumbnail.png">
-
-	<!-- TRANSLATE: 'og:title' and 'og:description' -->
-	<meta property="og:title" content="JOY.js (DEMO)">
+	<meta property="og:title" content="JOY.JS">
 	<meta property="og:type" content="website">
 	<meta property="og:url" content="http://ncase.me/joy/">
 	<meta property="og:image" content="http://ncase.me/joy/social/thumbnail.png">
 	<meta property="og:description" content="make happy little programs">
 
 	<!-- Styles -->
-	<link rel="stylesheet" href="index.css">
+	<link rel="stylesheet" href="frontpage/frontpage.css">
 
 </head>
 <body>
@@ -39,23 +35,49 @@
 <div id="description" class="dark_background">
 	<div id="description_arrow"></div>
 	<div id="description_prologue">
-		JOY.js is a blah blah blah blah blah blah blah blah blah blah blah blah 
+		Consider the paintbrush:
+		simple enough for a child, complex enough for an Old Master.
+		That's what any artistic tool should strive for,
+		and the art of programming deserves a tool that's more creative, more <i>alive.</i>
+		<b>Joy.js is a tool for making tools like that.</b>
 	</div>
 	<div id="description_content">
 		
-		<div class="desc_gif">GIF</div>
+		<div class="desc_mov">
+			<video width="470" height="235" autoplay loop>
+				<source src="frontpage/turtle.mp4" type="video/mp4" />
+			</video>
+		</div>
 		<div class="desc_info">
 		<b>EASY &amp; EXPRESSIVE</b>
+		In regular coding: tweak a number, compile, see the result seconds later, tweak again, repeat 'til bored.
+		In Joy.js: you can change the code by clicking / dragging / hovering, and <i>see the result appear immediately</i>.
+		Programming becomes as live &amp; direct as painting!
 		</div>
 		
 		<div class="desc_info">
 		<b>SEE WHOLE SYSTEMS</b>
+		No need to second-guess the program, to "play computer" in your head.
+		If you want to understand what a system does,
+		you can simply hover over the step numbers,
+		and see the system build itself <i>step by step.</i>
 		</div>
-		<div class="desc_gif">GIF</div>
+		<div class="desc_mov">
+			<video width="470" height="235" autoplay loop>
+				<source src="frontpage/nonlinear.mp4" type="video/mp4" />
+			</video>
+		</div>
 
-		<div class="desc_gif">GIF</div>
+		<div class="desc_mov">
+			<video width="470" height="235" autoplay loop>
+				<source src="frontpage/music.mp4" type="video/mp4" />
+			</video>
+		</div>
 		<div class="desc_info">
 		<b>SAVE &amp; SHARE</b>
+		And finally, when you make a tool with Joy.js, your users
+		will be able to save and share their work, and remix each others' creations!
+		(Note for developers: Joy.js "saves data" in the URL itself... meaning, no need to set up a server or database!)
 		</div>
 
 	</div>
@@ -65,16 +87,31 @@
 <a name="examples"></a>
 <div id="examples" class="cool_background">
 	<div id="examples_title">
-		<b>EXAMPLES</b> of joy.js in action:
+		<b>DEMOS:</b> play with &amp; "program" some...
 	</div>
 	<div id="examples_blocks">
-		<a href="demo/turtle/?drawing=star"><div>turtle</div></a>
-		<a href="demo/music/?song=random"><div>music</div></a>
-		<a href="demo/nonlinear/?model=disease"><div>nonlinear</div></a>
+		<a href="demo/turtle/?drawing=star">
+			<div class="example_button" id="demo_turtle_thumb">
+				<span>TURTLE<br>ART!</span>
+			</div>
+		</a>
+		<a href="demo/music/?song=random">
+			<div class="example_button" id="demo_music_thumb">
+				<span style="color:#fff;top:110px">MUSIC!</span>
+			</div>
+		</a>
+		<a href="demo/nonlinear/?model=disease">
+			<div class="example_button" id="demo_nonlinear_thumb">
+				<span>NONLINEAR<br>DYNAMICS!</span>
+			</div>
+		</a>
 	</div>
 	<div id="examples_getting_started">
-		get started
-		<a href=""><div></div></a>
+		Are you a developer, and want to use Joy.js to make a playful, "programmable" tool?
+		Check out this how-to guide:
+		<a href="getting-started" style="text-decoration: none;">
+			<div class="example_button">GETTING STARTED with JOY.JS</div>
+		</a>
 	</div>
 </div>
 
@@ -102,6 +139,13 @@
 <!-- SOCIAL -->
 <div id="social" class="dark_background">
 	share:
+	<!-- Simple Sharing Buttons -->
+	<ul class="share-buttons">
+		<li><a href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fncase.me%2Fjoy%2F&t=Joy.js%20%E2%80%93%20make%20happy%20little%20programs" title="Share on Facebook" target="_blank"><img alt="Share on Facebook" src="social/Facebook.png" /></a></li>
+		<li><a href="https://twitter.com/intent/tweet?source=http%3A%2F%2Fncase.me%2Fjoy%2F&text=Joy.js%20%E2%80%93%20make%20happy%20little%20programs:%20http%3A%2F%2Fncase.me%2Fjoy%2F" target="_blank" title="Tweet"><img alt="Tweet" src="social/Twitter.png" /></a></li>
+		<li><a href="mailto:?subject=Joy.js%20%E2%80%93%20make%20happy%20little%20programs&body=:%20http%3A%2F%2Fncase.me%2Fjoy%2F" target="_blank" title="Send email"><img alt="Send email" src="social/Email.png" /></a></li>
+	</ul>
 </div>
 
 </body>
+<script src="frontpage/frontpage.js"></script>

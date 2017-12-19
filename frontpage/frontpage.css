@@ -58,47 +58,93 @@ a:hover{
     border-top: 40px solid hsl(322, 20%, 71%);
 }
 #description_prologue{
-	width: 700px;
-	margin: 30px auto 0px auto;
+	width: 720px;
+	margin: 30px auto 50px auto;
 	overflow: hidden;
-	font-size: 1.25em;
 }
 #description_content{
-	width: 700px;
-	margin: 30px auto 30px auto;
+	width: 960px;
+	margin: 30px auto 20px auto;
 	overflow: hidden;
 }
 #description_content > div{
 	float: left;
-	width: 340px;
-	height: 200px;
+	width: 460px;
+	height: 260px;
 	margin-bottom: 20px;
 }
 #description_content > div:nth-child(2n){
-	margin-left: 20px;
+	margin-left: 40px;
 }
-.desc_gif{
-	background: rgba(255,255,255,0.2);
+.desc_mov{
+	/*background: rgba(255,255,255,0.2);*/
+}
+.desc_info {
+	font-size: 0.85em;
+	line-height: 1.7em;
+}
+.desc_info b{
+	display: block;
+	font-size: 2em;
+	line-height: 1em;
+	margin-bottom: 0.4em;
 }
 
 #examples{	
 	overflow: hidden;
 }
 #examples_title{
-	font-size: 2em;
+	font-size: 1.9em;
 	width: 800px;
 	margin: 50px auto 30px auto;
 }
 #examples_blocks{
 	width: 800px;
-	overflow: hidden;
+	height: 250px;
 	margin: 0 auto;
 }
 #examples_blocks div{
 	width: 250px;
-	height: 250px;
+	height: 245px;
 	float: left;
-	background: rgba(255, 255, 255, 0.5);
+}
+.example_button{
+
+	border-radius: 25px;
+	border-bottom: 5px solid rgba(0,0,0,0.2); 
+	position: relative;
+	top:0;
+	transition: top 0.2s ease-in-out;
+
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none; 
+
+}
+.example_button:hover{
+	top:-10px;
+}
+#examples_blocks div#demo_turtle_thumb{
+	background: url(demo_turtle.png);
+}
+#examples_blocks div#demo_music_thumb{
+	background: url(demo_music.png);
+}
+#examples_blocks div#demo_nonlinear_thumb{
+	background: url(demo_nonlinear.png);
+}
+#examples_blocks div span{
+	display: block;
+    text-align: center;
+    font-weight: bold;
+    color: #000;
+    font-size: 30px;
+    line-height: 1em;
+    width: 250px;
+    left: 0;
+    top: 97px;
+    position: relative;
 }
 #examples_blocks a:nth-child(n+2) > div{
 	margin-left: 25px;
@@ -106,14 +152,19 @@ a:hover{
 #examples_getting_started{
 	width: 640px;
 	margin: 30px auto 50px auto;
-	font-size: 1.25em;
+	font-size: 1em;
 }
 #examples_getting_started div{
-	width: 450px;
-	height: 80px;
-	background: rgba(255, 255, 255, 0.5);
-	border-radius: 10px; 
-	margin: 1em auto 0 auto;
+    width: 500px;
+    height: 60px;
+    background: hsl(322, 84%, 70%);
+    color: #fff;
+    font-weight: bolder;
+    border-radius: 10px;
+    margin: 0.5em auto 0 auto;
+    text-align: center;
+    font-size: 30px;
+    line-height: 60px;
 }
 
 #credits{
@@ -131,3 +182,21 @@ a:hover{
 	text-align: center;
 }
 
+ul.share-buttons{
+	list-style: none;
+	padding: 0;
+	display: inline-block;
+	position: relative;
+	top: 4px;
+}
+ul.share-buttons li{
+	display: inline;
+	transition: opacity 0.2s ease-in-out;
+	opacity: 0.7;
+}
+ul.share-buttons li:hover{
+	opacity: 1.0;
+}
+ul.share-buttons li img{
+	width: 20px;
+}
