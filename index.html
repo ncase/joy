@@ -3,6 +3,11 @@
 <head>
 
 	<title>JOY.JS - make happy little programs</title>
+	<meta name="description" content="make happy little programs"/>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
+	<meta charset="utf-8">
+	<link rel="icon" type="image/png" href="favicon.png">
 
 	<!-- Social Card Shtuff -->
 	<meta itemprop="name" content="JOY.JS">
@@ -28,12 +33,24 @@
 
 <!-- VIDEO -->
 <div id="splash" class="cool_background">
-	<div id="splash_video">VIDEO</div>
+	<div id="splash_container">
+		<div id="splash_video">
+			<video width="480" height="240" autoplay loop>
+				<source src="frontpage/joy.mp4" type="video/mp4" />
+			</video>
+		</div>
+		<div id="splash_image"></div>
+	</div>
+	<div id="splash_arrow">
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+	</div>
 </div>
 
 <!-- DESCRIPTION -->
 <div id="description" class="dark_background">
-	<div id="description_arrow"></div>
 	<div id="description_prologue">
 		Consider the paintbrush:
 		simple enough for a child, complex enough for an Old Master.
@@ -50,9 +67,9 @@
 		</div>
 		<div class="desc_info">
 		<b>EASY &amp; EXPRESSIVE</b>
-		In regular coding: tweak a number, compile, see the result seconds later, tweak again, repeat 'til bored.
-		In Joy.js: you can change the code by clicking / dragging / hovering, and <i>see the result appear immediately</i>.
-		Programming becomes as live &amp; direct as painting!
+		With regular coding: tweak a number, compile, see the result seconds later, tweak again, repeat 'til bored.
+		With Joy.js: change the code by clicking / dragging / hovering, and <i>see the result immediately</i>.
+		This lets you improvize, and discover "happy little accidents"!
 		</div>
 		
 		<div class="desc_info">
@@ -87,20 +104,20 @@
 <a name="examples"></a>
 <div id="examples" class="cool_background">
 	<div id="examples_title">
-		<b>DEMOS:</b> play with &amp; "program" some...
+		Here's some demos you can play with &amp; "program"! (click to open &darr;)
 	</div>
 	<div id="examples_blocks">
-		<a href="demo/turtle/?drawing=star">
+		<a href="demo/turtle">
 			<div class="example_button" id="demo_turtle_thumb">
 				<span>TURTLE<br>ART!</span>
 			</div>
 		</a>
-		<a href="demo/music/?song=random">
+		<a href="demo/music">
 			<div class="example_button" id="demo_music_thumb">
 				<span style="color:#fff;top:110px">MUSIC!</span>
 			</div>
 		</a>
-		<a href="demo/nonlinear/?model=disease">
+		<a href="demo/nonlinear">
 			<div class="example_button" id="demo_nonlinear_thumb">
 				<span>NONLINEAR<br>DYNAMICS!</span>
 			</div>

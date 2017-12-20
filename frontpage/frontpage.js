@@ -1,5 +1,16 @@
 window.onload = function(){
 
+	// SCROLL
+	var splash_container = document.getElementById("splash_container");
+	window.onscroll = function(){
+		requestAnimationFrame(function(){
+			var scrollY = window.pageYOffset;
+			splash_container.style.top = scrollY*0.5;
+		});
+	};
+	window.onscroll();
+
+	// ANIMATED DEMO THUMBNAILS
 	var _MakeAnimatedThumb = function(config){
 
 		var thumb = document.querySelector(config.dom);
