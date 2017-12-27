@@ -62,8 +62,8 @@ Then, after including Joy.js &amp; its default stylesheet,
     // What to do when the user makes a change:
     onupdate: function(my){
         var box = document.getElementById("box");
-        box.style.width = my.data.width;
-        box.style.height = my.data.height;
+        box.style.width = my.data.width+"px";
+        box.style.height = my.data.height+"px";
         box.style.background = my.data.color;
     }
 });
